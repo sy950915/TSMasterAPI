@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-03-24 17:29:43
+LastEditTime: 2023-03-27 11:54:01
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -387,9 +387,10 @@ class TLIBFlexray(Structure):
     def __init__(self,FIdxChn=0,FSlotId=1,FChannelMask=1,FActualPayloadLength=32,FCycleNumber=1,FData=[]):
         self.FIdxChn = FIdxChn
         self.FSlotId = FSlotId
-        self.FChannelMask = FChannelMask
+        self.FChannelMask = FChannelMask | 0x04
         self.FActualPayloadLength = FActualPayloadLength
-        self.FCycleNumber = FCycleNumber    
+        self.FCycleNumber = FCycleNumber  
+        self.FPayloadLength = 254  
         datalen = len(FData)
         if datalen>self.FActualPayloadLength:
             datalen = self.FActualPayloadLength
@@ -2642,40 +2643,102 @@ def tsdiag_lin_fault_memory_clear(AChnIdx: CHANNEL_INDEX, ANAD: c_int8, ANewSess
     return r
 
 #TLIBFlxeRay API
+# Flexray报文同步发送
 def tsapp_transmit_flexray_sync(AFlexRay:TLIBFlexray,ATimeout:c_int32):
+    """
+    AFlexray = TLIBFlexray(FIdxChn=0,FSlotId=1,FChannelMask=1,FActualPayloadLength=32,FCycleNumber=1,FData=[1,2,3,4,5,6,7])
+    ATimeout = c_int32(10)
+    tsapp_transmit_flexray_sync(AFlexray,ATimeout)
+    """
     return dll.tsapp_transmit_flexray_sync(byref(AFlexRay),ATimeout)
 
+# Flexray报文异步发送
 def tsapp_transmit_flexray_async(AFlexRay:TLIBFlexray):
+    """
+    AFlexray = TLIBFlexray(FIdxChn=0,FSlotId=1,FChannelMask=1,FActualPayloadLength=32,FCycleNumber=1,FData=[1,2,3,4,5,6,7])
+    tsapp_transmit_flexray_async(AFlexray)
+    """
     return dll.tsapp_transmit_flexray_async(byref(AFlexRay))
 
+# 清空flexray fifo buffer
 def tsfifo_clear_flexray_receive_buffers(chn: c_int):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    tsfifo_clear_flexray_receive_buffers(chn)
+    """
     return dll.tsfifo_clear_flexray_receive_buffers(chn)
 
-def tsfifo_read_flexray_buffer_frame_count(AIdxChn: c_int, ACount: c_int):
+# 读取flexray fifo buffer 总数量
+def tsfifo_read_flexray_buffer_frame_count(AIdxChn: c_int, ACount: c_int32):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    ACount = c_int32(0)
+    tsfifo_read_flexray_buffer_frame_count(chn,ACount)
+    """
     return dll.tsfifo_read_flexray_buffer_frame_count(AIdxChn, byref(ACount))
 
-def tsfifo_read_flexray_tx_buffer_frame_count( AIdxChn: c_int, ACount: c_int):
+# 读取flexray fifo buffer tx数量
+def tsfifo_read_flexray_tx_buffer_frame_count( AIdxChn: c_int, ACount: c_int32):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    ACount = c_int32(0)
+    tsfifo_read_flexray_tx_buffer_frame_count(chn,ACount)
+    """
     return dll.tsfifo_read_flexray_tx_buffer_frame_count(AIdxChn, byref(ACount))
 
+# 读取flexray fifo buffer rx数量
 def tsfifo_read_flexray_rx_buffer_frame_count(AIdxChn: c_int, ACount: c_int):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    ACount = c_int32(0)
+    tsfifo_read_flexray_rx_buffer_frame_count(chn,ACount)
+    """
     return dll.tsfifo_read_flexray_rx_buffer_frame_count( AIdxChn, byref(ACount))
 
+# 获取fifo中flexray报文 当ARXTX非0 时包含TX报文 为0时仅包含RX报文
 def tsfifo_receive_flexray_msgs(ADataBuffers: TLIBFlexray, ADataBufferSize: c_int, chn: c_int,
                                 ARxTx: c_int8):
+    """
+    ADataBuffers = (TLIBFlexray*100)()
+    ADataBufferSize = c_int32(100)
+    chn = CHANNEL_INDEX.CHN1
+    ARxTx = 0
+    tsfifo_receive_flexray_msgs(ADataBuffers,ADataBufferSize,chn,ARxTx)
+    """
     return dll.tsfifo_receive_flexray_msgs(ADataBuffers, byref(ADataBufferSize), chn, ARxTx)
 
-
+#启动flexray 网络
 def tsflexray_start_net(AChnIdx: CHANNEL_INDEX,ATimeout:c_int32):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    tsflexray_start_net(chn,c_int32(1000))
+    """
     return dll.tsflexray_start_net(AChnIdx,ATimeout)
 
+#停止flexray 网络
 def tsflexray_stop_net(AChnIdx: CHANNEL_INDEX,ATimeout:c_int32):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    tsflexray_stop_net(chn,c_int32(1000))
+    """
     return dll.tsflexray_stop_net(AChnIdx,ATimeout)
 
+# 唤醒flexray pattern
 def tsflexray_wakeup_pattern(AChnIdx: CHANNEL_INDEX,ATimeout:c_int32):
+    """
+    chn = CHANNEL_INDEX.CHN1
+    tsflexray_wakeup_pattern(chn,c_int32(1000))
+    """
     return dll.tsflexray_wakeup_pattern(AChnIdx,ATimeout)
 
 #tsdb_Flexray api
+
+# 载入flexray数据库
 def tsdb_load_flexray_db(AFliepath:str,ASupportedChannels:str,AId:c_int32):
+    """
+    AId = c_int32(0)
+    tsdb_load_flexray_db(b"C:/1.xml",b'0,1',AId)
+    """
     if not isinstance(AFliepath,bytes):
         AFliepath = bytes(AFliepath)
     if not isinstance(ASupportedChannels,bytes):
@@ -2688,17 +2751,38 @@ def tsdb_load_flexray_db(AFliepath:str,ASupportedChannels:str,AId:c_int32):
     #         return ret  
     return ret
 
-
+# 卸载flexray数据库
 def tsdb_unload_flexray_db(AId:c_int32):
+    """
+    AId = c_int32(0)
+    tsdb_load_flexray_db(b"C:/1.xml",b'0,1',AId)
+    tsdb_unload_flexray_db(AId)
+    """
     return dll.tsdb_unload_flexray_db(AId)
 
+# 卸载所有flexray数据库 
 def tsdb_unload_flexray_dbs():
+    """
+    AId = c_int32(0)
+    tsdb_load_flexray_db(b"C:/1.xml",b'0,1',AId)
+    tsdb_unload_flexray_dbs()
+    """
     return dll.tsdb_unload_flexray_dbs()
 
+# 获取加载的flexray数据库数量
 def tsdb_get_flexray_db_count(Acount:c_int32):
+    """
+    Acount = c_int32(0)
+    tsdb_get_flexray_db_count(Acount)
+    """
     return dll.tsdb_get_flexray_db_count(byref(Acount))
 
+# 通过地址获取flexray数据库属性信息
 def tsdb_get_flexray_db_properties_by_address_verbose(AAddr:str):
+    '''
+    db_msg =  app.db_get_flexray_database_properties_by_address(b"0/network1")
+    print(db_msg)
+    '''
     if not isinstance(AAddr,bytes):
         AAddr = bytes(AAddr)
     ADBIndex =c_int32(0)
@@ -2717,8 +2801,14 @@ def tsdb_get_flexray_db_properties_by_address_verbose(AAddr:str):
             AComment = ''
         return ADBIndex,AFrameCount,ASignalCount,AECUCount,ASupportedChannelMask,string_at(AName).decode('utf8'),AComment
     print(tsapp_get_error_description(ret))
-    return AECUCount,AFrameCount,ASignalCount,ASupportedChannelMask,string_at(AName),AComment                                                                          
+    return AECUCount,AFrameCount,ASignalCount,ASupportedChannelMask,string_at(AName),AComment     
+
+# 通过索引获取flexray数据库属性信息
 def tsdb_get_flexray_db_properties_by_index_verbose(ADBIndex:c_int32):
+    '''
+    db_msg =  app.db_get_flexray_database_properties_by_address(0)
+    print(db_msg)
+    '''
     AFrameCount = c_int32(0)
     ASignalCount = c_int32(0)
     AECUCount = c_int32(0)
@@ -2737,7 +2827,12 @@ def tsdb_get_flexray_db_properties_by_index_verbose(ADBIndex:c_int32):
     print(tsapp_get_error_description(ret))
     return AECUCount,AFrameCount,ASignalCount,ASupportedChannelMask,string_at(AName),AComment
 
+# 通过地址获取数据库ECU信息
 def tsdb_get_flexray_ecu_properties_by_address_verbose(AAddr:str):
+    '''
+    ecu_msg =  app.tsdb_get_flexray_ecu_properties_by_address_verbose(b"0/network1/ecu1")
+    print(ecu_msg)
+    '''
     if not isinstance(AAddr,bytes):
         AAddr = bytes(AAddr)
     ADBIndex =c_int32(0)
@@ -2757,7 +2852,12 @@ def tsdb_get_flexray_ecu_properties_by_address_verbose(AAddr:str):
     print(tsapp_get_error_description(ret))
     return ADBIndex,AECUIndex,ATxFrameCount,ARxFrameCount,string_at(AName).decode('utf8'),AComment
 
+# 通过索引获取数据库ECU信息
 def tsdb_get_flexray_ecu_properties_by_index_verbose(ADBIndex:c_int32,AECUIndex:c_int32):
+    '''
+    ecu_msg =  app.tsdb_get_flexray_ecu_properties_by_index_verbose(0,0)
+    print(ecu_msg)
+    '''
     ATxFrameCount = c_int32(0)
     ARxFrameCount = c_int32(0)
     AName = POINTER(POINTER(c_char))()
@@ -2773,7 +2873,12 @@ def tsdb_get_flexray_ecu_properties_by_index_verbose(ADBIndex:c_int32,AECUIndex:
     print(tsapp_get_error_description(ret)) 
     return ATxFrameCount,ARxFrameCount,string_at(AName).decode('utf8'),AComment
 
+# 通过地址获取数据库frame信息
 def tsdb_get_flexray_frame_properties_by_address_verbose(AAddr:str):
+    '''
+    frame_msg =  app.tsdb_get_flexray_frame_properties_by_address_verbose(b"0/network1/ecu1/frame1")
+    print(frame_msg)
+    '''
     if not isinstance(AAddr,bytes):
         AAddr = bytes(AAddr)
     ADBIndex= c_int32(0)
@@ -2800,7 +2905,13 @@ def tsdb_get_flexray_frame_properties_by_address_verbose(AAddr:str):
         return ADBIndex,AECUIndex,AFrameIndex,AIsTx,AFRChannelMask,AFRBaseCycle,AFRCycleRepetition,AFRIsStartupFrame,AFRSlotId,AFRCycleMask,ASignalCount,AFRDLC,string_at(AName).decode('utf8'),AComment
     print(tsapp_get_error_description(ret)) 
     return ADBIndex,AECUIndex,AFrameIndex,AIsTx,AFRChannelMask,AFRBaseCycle,AFRCycleRepetition,AFRIsStartupFrame,AFRSlotId,AFRCycleMask,ASignalCount,AFRDLC,string_at(AName).decode('utf8'),AComment
+
+# 通过索引获取数据库frame信息
 def tsdb_get_flexray_frame_properties_by_index_verbose(ADBIndex:c_int32,AECUIndex:c_int32,AFrameIndex:c_int32,AIsTx:c_bool):
+    '''
+    frame_msg =  app.tsdb_get_flexray_frame_properties_by_index_verbose(0,0,0,Flase)
+    print(frame_msg)
+    '''
     AFRChannelMask= c_int32(0)
     AFRBaseCycle= c_int32(0)
     AFRCycleRepetition= c_int32(0)
@@ -2820,7 +2931,13 @@ def tsdb_get_flexray_frame_properties_by_index_verbose(ADBIndex:c_int32,AECUInde
         return AFRChannelMask,AFRBaseCycle,AFRCycleRepetition,AFRIsStartupFrame,AFRSlotId,AFRCycleMask,ASignalCount,AFRDLC,string_at(AName).decode('utf8'),AComment
     print(tsapp_get_error_description(ret)) 
     return AFRChannelMask,AFRBaseCycle,AFRCycleRepetition,AFRIsStartupFrame,AFRSlotId,AFRCycleMask,ASignalCount,AFRDLC,string_at(AName).decode('utf8'),AComment
+
+# 通过地址获取数据库signal信息
 def tsdb_get_flexray_signal_properties_by_address_verbose(AAddr:str):
+    """
+    signal_msg =  app.tsdb_get_flexray_signal_properties_by_address_verbose(b"0/network1/ecu1/frame1/signal1")
+    print(signal_msg)
+    """
     if not isinstance(AAddr,bytes):
         AAddr = bytes(AAddr)
     ADBIndex= c_int32(0)
@@ -2850,7 +2967,14 @@ def tsdb_get_flexray_signal_properties_by_address_verbose(AAddr:str):
         return ADBIndex,AECUIndex,AFrameIndex,ASignalIndex,AIsTx,ASignalType,ACompuMethod,AIsIntel,AStartBit,AUpdateBit,ALength,AFactor,AOffset,AInitValue,string_at(AName).decode('utf8'),AComment
     print(tsapp_get_error_description(ret))
     return ADBIndex,AECUIndex,AFrameIndex,ASignalIndex,AIsTx,ASignalType,ACompuMethod,AIsIntel,AStartBit,AUpdateBit,ALength,AFactor,AOffset,AInitValue,AName,AComment
+
+
+# 通过索引获取数据库signal信息
 def tsdb_get_flexray_signal_properties_by_index_verbose(ADBIndex:c_int32,AECUIndex:c_int32,AFrameIndex:c_int32,ASignalIndex:c_int32,AIsTx:c_bool):
+    """
+    signal_msg =  app.tsdb_get_flexray_signal_properties_by_index_verbose(0,0,0,0,Flase)
+    print(signal_msg)
+    """
     ASignalType = c_int(0)
     ACompuMethod = c_int(0)
     AIsIntel = c_bool()
@@ -2876,19 +3000,26 @@ def tsdb_get_flexray_signal_properties_by_index_verbose(ADBIndex:c_int32,AECUInd
     print(tsapp_get_error_description(ret))
     return ASignalType,ACompuMethod,AIsIntel,AStartBit,AUpdateBit,ALength,AFactor,AOffset,AInitValue,AName,AComment
 
+# 通过索引获取数据库id
 def tsdb_get_flexray_db_id(AIndex:c_int32):
+    '''
+    print(tsdb_get_flexray_db_id(0))
+    '''
     Aid = c_int32(0)
     ret = dll.tsdb_get_flexray_db_id(AIndex,byref(Aid))
     if ret == 0 :
         return Aid
     return tsapp_get_error_description(ret)
 
+# 启动flexray rbs
 def tscom_flexray_rbs_start():
     return dll.tscom_flexray_rbs_start()
 
+# 停止flexray rbs
 def tscom_flexray_rbs_stop():
     return dll.tscom_flexray_rbs_stop()
 
+# flexray rbs是否启动
 def tscom_flexray_rbs_is_running():
     AIsRunning = c_bool()
     ret = dll.tscom_flexray_rbs_is_running(byref(AIsRunning))
@@ -2896,22 +3027,43 @@ def tscom_flexray_rbs_is_running():
         return AIsRunning
     return tsapp_get_error_description(ret)
 
+# flexray rbs设置
 def tscom_flexray_rbs_configure(AAutoStart:c_bool,AAutoSendOnModification:c_bool,AActivateECUSimulation:c_bool,AInitValueOptions:c_int):
+    '''
+    //参数1 :是否自动启动rbs
+    //参数2 :是否自动发送
+    //参数3 :是否激活ECU仿真
+    //参数4 :初始值选择
+    tscom_flexray_rbs_configure(False,False,False,0)
+    '''
     return dll.tscom_flexray_rbs_configure(AAutoStart,AAutoSendOnModification,AActivateECUSimulation,AInitValueOptions)
 
+# 是否激活所以flexray rbs cluster 并包括所有子节点
 def tscom_flexray_rbs_activate_all_clusters(AEnable:c_bool,AIncludingChildren:c_bool):
+    """tscom_flexray_rbs_activate_all_clusters(True,False)"""
     return dll.tscc_flexray_rbs_activate_all_clusters(AEnable,AIncludingChildren)
 
+# 通过name激活cluster 并是否包括子节点
 def tscom_flexray_rbs_activate_cluster_by_name(AIdxChn:c_int,AEnable:c_bool,AClusterName:bytes,AIncludingChildren:c_bool):
+    """tscom_flexray_rbs_activate_cluster_by_name(0,True,b"Network1",False)"""
     return dll.tscom_flexray_rbs_activate_cluster_by_name(AIdxChn,AEnable,AClusterName,AIncludingChildren)
 
+# 通过name激活ecu 并是否包括子节点
 def tscom_flexray_rbs_activate_ecu_by_name(AIdxChn:c_int,AEnable:c_bool,AClusterName:bytes,AECUName:bytes,AIncludingChildren:c_bool):
+    """tscom_flexray_rbs_activate_ecu_by_name(0,True,b"Network1",b"ECU1",False)"""
     return dll.tscom_flexray_rbs_activate_ecu_by_name(AIdxChn,AEnable,AClusterName,AECUName,AIncludingChildren)
 
+# 通过name激活msg 
 def tscom_flexray_rbs_activate_frame_by_name(AIdxChn:c_int,AEnable:c_bool,AClusterName:bytes,AECUName:bytes,AFrameName:bytes):
+    """tscom_flexray_rbs_activate_frame_by_name(0,True,b"Network1",b"ECU1",b'Frame1')"""
     return dll.tscom_flexray_rbs_activate_frame_by_name(AIdxChn,AEnable,AClusterName,AECUName,AFrameName)
 
+# 通过element 获取信号值
 def tscom_flexray_rbs_get_signal_value_by_element(AIdxChn:c_int32,AClusterName:bytes,AECUName:bytes,AFrameName:bytes,ASignalName:bytes):
+    """
+    value = tscom_flexray_rbs_get_signal_value_by_element(0,b'PowerTrain',b'BSC',b'BackLightInfo',b'BrakeLight')
+    print(value)
+    """
     if not isinstance(AClusterName,bytes):
         AClusterName = bytes(AClusterName)
     if not isinstance(AECUName,bytes):
@@ -2926,14 +3078,23 @@ def tscom_flexray_rbs_get_signal_value_by_element(AIdxChn:c_int32,AClusterName:b
         return AValue.value
     return tsapp_get_error_description(ret)
 
+# 通过地址 获取信号值
 def tscom_flexray_rbs_get_signal_value_by_address(AAddr:bytes):
+    """
+    TSMasterAPI.tscom_flexray_rbs_get_signal_value_by_address(b'0/PowerTrain/BSC/BackLightInfo/BrakeLight')
+    """
     AValue = c_double(0)
     ret = dll.tscom_flexray_rbs_get_signal_value_by_address(AAddr,byref(AValue))
     if ret == 0:
         return AValue.value
     return tsapp_get_error_description(ret)
 
+# 通过element 设置信号值
 def tscom_flexray_rbs_set_signal_value_by_element(AIdxChn:c_int32,AClusterName:bytes,AECUName:bytes,AFrameName:bytes,ASignalName:bytes,AValue:c_double):
+    """
+    value = c_double(1.0)
+    tscom_flexray_rbs_set_signal_value_by_element(0,b'PowerTrain',b'BSC',b'BackLightInfo',b'BrakeLight'，value)
+    """
     if not isinstance(AClusterName,bytes):
         AClusterName = bytes(AClusterName)
     if not isinstance(AECUName,bytes):
@@ -2944,50 +3105,94 @@ def tscom_flexray_rbs_set_signal_value_by_element(AIdxChn:c_int32,AClusterName:b
         ASignalName = bytes(ASignalName)
     return dll.tscom_flexray_rbs_set_signal_value_by_element(AIdxChn,AClusterName,AECUName,AFrameName,ASignalName,AValue)
 
+# 通过地址 设置信号值
 def tscom_flexray_rbs_set_signal_value_by_address(AAddr:bytes,AValue:c_double):
     # if not isinstance(AAddr,bytes):
     #     AAddr = bytes(AAddr)
+    """
+    value = c_double(1.0)
+    tscom_flexray_rbs_set_signal_value_by_element(0,b'PowerTrain',b'BSC',b'BackLightInfo',b'BrakeLight'，value)
+    """
     return dll.tscom_flexray_rbs_set_signal_value_by_address(AAddr,AValue)
 
+# 使能/失能flexray rbs功能
 def tscom_flexray_rbs_enable(AEnable:c_bool):
+    """
+    tscom_flexray_rbs_enable(True)
+    tscom_flexray_rbs_enable(False)
+    """
     return dll.tscom_flexray_rbs_enable(AEnable)
 
+# 开始信号改值批处理
 def tscom_flexray_rbs_batch_set_start():
     return dll.tscom_flexray_rbs_batch_set_start()
 
+# 结束信号该值批处理
 def tscom_flexray_rbs_batch_set_end():
     return dll.tscom_flexray_rbs_batch_set_end()
 
+# 设置信号值
 def tscom_flexray_rbs_batch_set_signal(AAddr:bytes,AValue:c_double):
+    """
+    启动信号批处理集操作，在此调用之后，所有信号设置都被缓存，直到调用can_rbs_batch_set_end，这确保了当设置其中的多个信号时只触发一帧
+    tscom_flexray_rbs_batch_set_start();
+    // message will not be triggered before can_rbs_batch_set_end
+    tscom_flexray_rbs_batch_set_signal(b"0/cluster1/ecu1/frame1/sgn1", c_double(1.2));
+    tscom_flexray_rbs_batch_set_signal(b"0/cluster1/ecu1/frame1/sgn2", c_double(3.4));
+    // ...
+    tscom_flexray_rbs_batch_set_end();
+    """
     if not isinstance(AAddr,bytes):
         AAddr = bytes(AAddr)
     return dll.tscom_flexray_rbs_batch_set_signal(AAddr,AValue)
 
+# 设置frame为tx或rx
 def tscom_flexray_rbs_set_frame_direction(AIdxChn:c_int32,AIsTx:c_bool,AClusterName:bytes,AECUName:bytes,AFrameName:bytes):
+    '''
+    # 设置Cluster1 ECU1 Frame1 为发送报文
+    tscom_flexray_rbs_set_frame_direction(CHANNEL_INDEX.CH1, True, b"Cluster1", b"ECU1", b"Frame1")
+    '''
     if not isinstance(AClusterName,bytes):
         AClusterName = bytes(AClusterName)
     if not isinstance(AECUName,bytes):
         AECUName = bytes(AECUName)
     if not isinstance(AFrameName,bytes):
         AFrameName = bytes(AFrameName)
+
     return dll.tscom_flexray_rbs_set_frame_direction(AIdxChn,AIsTx,AClusterName,AECUName,AFrameName)
 
+# 设置信号为normal信号
 def tscom_flexray_rbs_set_normal_signal(ASymbolAddress:bytes):
+    """
+    tscom_flexray_rbs_set_normal_signal(b"0/Cluster1/ecu1/frame1/signal1")
+    """
     if not isinstance(ASymbolAddress,bytes):
         ASymbolAddress = bytes(ASymbolAddress)
     return dll.tscom_flexray_rbs_set_normal_signal(ASymbolAddress)
 
+# 设置信号为rc信号
 def tscom_flexray_rbs_set_rc_signal(ASymbolAddress:bytes):
+    """
+    tscom_flexray_rbs_set_rc_signal(b"0/Cluster1/ecu1/frame1/signal1")
+    """
     if not isinstance(ASymbolAddress,bytes):
         ASymbolAddress = bytes(ASymbolAddress)
     return dll.tscom_flexray_rbs_set_rc_signal(ASymbolAddress)
 
+# 设置rc信号值的限定范围
 def tscom_flexray_rbs_set_rc_signal_with_limit(ASymbolAddress:bytes,ALowerLimit:c_int32,AUpperLimit:c_int32):
+    """
+    tscom_flexray_rbs_set_rc_signal_with_limit(b"0/Cluster1/ecu1/frame1/signal1",c_int32(0),c_int32(14))
+    """
     if not isinstance(ASymbolAddress,bytes):
         ASymbolAddress = bytes(ASymbolAddress)
     return dll.tscom_flexray_rbs_set_rc_signal(ASymbolAddress,ALowerLimit,AUpperLimit)
 
+# 设置信号为crc信号
 def tscom_flexray_rbs_set_crc_signal(ASymbolAddress:bytes,AAlgorithmName:bytes,AIdxByteStart:c_int32,AByteCount:c_int32):
+    """
+    tscom_flexray_rbs_set_crc_signal(b"0/Cluster1/ecu1/frame1/signal1",b"mp.crc8",c_int32(0),c_int32(2))
+    """
     if not isinstance(ASymbolAddress,bytes):
         ASymbolAddress = bytes(ASymbolAddress)
     if not isinstance(AAlgorithmName,bytes):
@@ -3000,6 +3205,7 @@ def tsflexray_set_controller_frametrigger(ANodeIndex: c_uint,
                                         AFrameLengthArray: bytearray,
                                         AFrameNum: c_int, AFrameTrigger: TLibTrigger_def,AFrameTriggerNum: c_int,
                                         ATimeoutMs: c_int):
+    
     r = dll.tsflexray_set_controller_frametrigger(ANodeIndex, byref(AControllerConfig),
                                                 AFrameLengthArray, AFrameNum, AFrameTrigger,
                                                 AFrameTriggerNum, ATimeoutMs)
@@ -3008,31 +3214,136 @@ def tsflexray_set_controller_frametrigger(ANodeIndex: c_uint,
 
 #Flexray 回调事件
 
+# 注册 flexray 发送接收事件
 def tsapp_register_event_flexray(obj:c_int32,FUNC:OnTx_RxFUNC_Flexray):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_event_flexray(obj,On_Flexray)
+    """
     return dll.tsapp_register_event_flexray(byref(obj),FUNC)
 
+# 注销 flexray 发送接收事件
 def tsapp_unregister_event_flexray(obj:c_int32,FUNC:OnTx_RxFUNC_Flexray):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_event_flexray(obj,On_Flexray)
+    tsapp_unregister_event_flexray(obj,On_Flexray)
+    """
     return dll.tsapp_unregister_event_flexray(byref(obj),FUNC)
 
+# 注销 所有 flexray 发送接收事件
 def tsapp_unregister_events_flexray(obj:c_int32):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_event_flexray(obj,On_Flexray)
+    tsapp_unregister_events_flexray(obj)
+    """
     return dll.tsapp_unregister_events_flexray(byref(obj))
 
+# 注册flexray预发送事件
 def tsapp_register_pretx_event_flexray(obj:c_int32,FUNC:OnTx_RxFUNC_Flexray):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_pretx_event_flexray(obj,On_Flexray)
+    """
     return dll.tsapp_register_pretx_event_flexray(byref(obj),FUNC)
 
+# 注销flexray预发送事件
 def tsapp_unregister_pretx_event_flexray(obj:c_int32,FUNC:OnTx_RxFUNC_Flexray):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_pretx_event_flexray(obj,On_Flexray)
+    tsapp_unregister_pretx_event_flexray(obj,On_Flexray)
+    """
     return dll.tsapp_unregister_pretx_event_flexray(byref(obj),FUNC)
 
+# 注销flexray所有预发送事件
 def tsapp_unregister_pretx_events_flexray(obj:c_int32):
+    """
+    obj = c_int32(0)
+    def Flexray_RX(obj,AFlexray):
+    '''
+    回调事件 发送完成事件 接受事件 都在该函数中实现
+    '''
+    #(16,0,2)
+    if(AFlexray.contents.FSlotId == 16 and AFlexray.contents.FCycleNumber%2==0):
+        # ret = tsapp_transmit_flexray_async(AFlexray)
+        # print(ret)
+        pass
+    On_Flexray = OnTx_RxFUNC_Flexray(Flexray_RX)
+    tsapp_register_pretx_event_flexray(obj,On_Flexray)
+    tsapp_unregister_pretx_events_flexray(obj)
+    """
     return dll.tsapp_unregister_pretx_events_flexray(byref(obj))
 
+# 获取flexray数据库中信号定义
 def tscom_flexray_get_signal_definition(ASignalAddress:bytes):
+    """
+    TSignal_ = tscom_flexray_get_signal_definition(b'0/PowerTrain/BSC/BackLightInfo/BrakeLight')
+    print(TSignal_)
+    """
     ASignalDef=TFlexRaySignal()
     ret = dll.tscom_flexray_get_signal_definition(ASignalAddress,byref(ASignalDef))
     if ret == 0:
         return ASignalDef
     return None
 
+'''
+# 从flexray原始报文中获取信号值
+TSignal_ = tscom_flexray_get_signal_definition(b'0/PowerTrain/BSC/BackLightInfo/BrakeLight')
+value= tscom_flexray_get_signal_value_in_raw_frame(TSignal_,bytes(AFlexray.contents.FData))
+print(value)
+'''
 tscom_flexray_get_signal_value_in_raw_frame = dll.tscom_flexray_get_signal_value_in_raw_frame #函数对象
 tscom_flexray_get_signal_value_in_raw_frame.argtypes = [POINTER(TFlexRaySignal),c_char_p] #指定参数类型
 tscom_flexray_get_signal_value_in_raw_frame.restype = c_double 
@@ -3044,6 +3355,12 @@ tscom_flexray_get_signal_value_in_raw_frame.restype = c_double
 
 
 def tscom_flexray_set_signal_value_in_raw_frame(AFlexRaySignal:TFlexRaySignal,AData:bytes,AValue:c_double):
+    '''
+    # 设置flexray信号值
+    TSignal_ = tscom_flexray_get_signal_definition(b'0/PowerTrain/BSC/BackLightInfo/BrakeLight')
+    value= c_double(1.0)
+    tscom_flexray_set_signal_value_in_raw_frame(TSignal_,bytes(AFlexray.contents.FData),value)
+    '''
     return dll.tscom_flexray_set_signal_value_in_raw_frame(byref(AFlexRaySignal),AData,AValue)
 
 # def flexray_db_parse(index):
