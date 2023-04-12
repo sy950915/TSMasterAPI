@@ -16,6 +16,7 @@ bin/
 obj/
 Release/
 license.txt
+readme.txt
 README.rst
 setup.py
 build/
