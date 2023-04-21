@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-12 17:52:14
+LastEditTime: 2023-04-21 16:31:18
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -1875,9 +1875,6 @@ def tscom_can_rbs_activate_all_networks(AEnable: bool, AIncludingChildren: bool)
     return dll.tscom_can_rbs_activate_all_networks(AEnable, AIncludingChildren)
 
 
-def tscom_can_rbs_enable(AEnable: bool):
-    return dll.tscom_can_rbs_enable(AEnable)
-
 
 def tscom_can_rbs_get_signal_value_by_address(ASymboladdress: str, Avalue: c_double):
     return dll.tscom_can_rbs_get_signal_value_by_address(ASymboladdress, byref(Avalue))
@@ -1975,7 +1972,7 @@ def tslog_add_online_replay_config(AFileName: str, AIndex: c_int32):
 # 设置在线回放配置
 def tslog_set_online_replay_config(AIndex: c_int32, AName: str, AFileName: str, AAutoStart: c_bool,
                                    AIsRepetitiveMode: c_bool, AStartTimingMode: c_int32, AStartDelayTimeMs: c_int32,
-                                   ASendTx: c_bool, ASendRx: c_bool, AMappings: c_char * 32):
+                                   ASendTx: c_bool, ASendRx: c_bool, AMappings: c_char_p):
     r = dll.tslog_set_online_replay_config(AIndex, AName, AFileName, AAutoStart, AIsRepetitiveMode, AStartTimingMode,
                                            AStartDelayTimeMs, ASendTx, ASendRx, AMappings)
     return r
@@ -2140,7 +2137,7 @@ def tslog_blf_write_can(AHeadle: c_int32, ACAN: TLIBCAN):
     return r
 
 
-def tslog_blf_write_canfd(AHeadle: c_int32, ACANFD: TLIBCANFD):
+def tslog_blf_write_can_fd(AHeadle: c_int32, ACANFD: TLIBCANFD):
     """
     blfID = c_int32(0)
     count = c_ulong(0)
@@ -2158,7 +2155,7 @@ def tslog_blf_write_canfd(AHeadle: c_int32, ACANFD: TLIBCANFD):
     tslog_blf_read_end(blfID)
     tslog_blf_write_end(writeHandle)
     """
-    r = dll.tslog_blf_write_canfd(AHeadle, byref(ACANFD))
+    r = dll.tslog_blf_write_can_fd(AHeadle, byref(ACANFD))
     return r
 
 
