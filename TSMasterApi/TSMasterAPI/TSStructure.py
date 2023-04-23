@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 10:21:17
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-21 17:44:01
+LastEditTime: 2023-04-23 10:37:49
 FilePath: \TSMasterAPI\TSMasterApi\TSMasterAPI\TSStructure.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -450,7 +450,7 @@ class TCANSignal(Structure):
                 ("FFactor", c_double),
                 ("FOffset", c_double),
                 ]
-    
+PCANSignal = POINTER(TCANSignal)    
 class TLINSignal(Structure):
     '''
     LIN Signal 
@@ -463,7 +463,7 @@ class TLINSignal(Structure):
                 ("FFactor", c_double),
                 ("FOffset", c_double),
                 ]
-    
+PLINSignal = POINTER(TLINSignal)      
 class TFlexRaySignal(Structure):
     '''
     获取信号在数据库中的定义 通过该结构体 可获取对报文中该信号值以及设置对应报文该信号值
@@ -485,6 +485,7 @@ class TFlexRaySignal(Structure):
                 ("FFactor",c_double),
                 ("FOffset",c_double),
                 ] 
+PFlexRaySignal = POINTER(TFlexRaySignal)
 class TDBProperties(Structure):
     '''
     DataBase properties 描述数据库中的报文数量 信号数量 ECU节点数量
@@ -498,6 +499,7 @@ class TDBProperties(Structure):
                 ("FName", c_char * DATABASE_STR_LEN),
                 ("FComment", c_char * DATABASE_STR_LEN),
                 ]
+PDBProperties = POINTER(TDBProperties)
 class TDBECUProperties(Structure):
     '''
     DataBase ECU properties 描述数据库中ECU节点 TX RX报文数量以及ECU节点名称与注释
@@ -509,7 +511,8 @@ class TDBECUProperties(Structure):
                 ("FRxFrameCount", c_int32),
                 ("FName", c_char * DATABASE_STR_LEN),
                 ("FComment", c_char * DATABASE_STR_LEN),
-                ] 
+                ]
+PDBECUProperties = POINTER(TDBECUProperties) 
 class TDBFrameProperties(Structure):
     '''
     DataBase Frame properties 描述数据库中Frame signal数量以及Frame名称与注释
@@ -546,7 +549,7 @@ class TDBFrameProperties(Structure):
                 ("FName", c_char * DATABASE_STR_LEN),
                 ("FComment", c_char * DATABASE_STR_LEN),
                 ] 
-    
+PDBFrameProperties = POINTER(TDBFrameProperties)     
 class TDBSignalProperties(Structure):
     '''
     DataBase Signal properties 描述数据库中 signal详细信息
@@ -570,6 +573,7 @@ class TDBSignalProperties(Structure):
                 ("FComment", c_char * DATABASE_STR_LEN),
                 ] 
 
+PDBSignalProperties = POINTER(TDBSignalProperties) 
 
 #回调函数
 

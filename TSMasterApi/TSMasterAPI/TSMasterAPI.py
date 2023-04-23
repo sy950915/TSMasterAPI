@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-21 16:31:18
+LastEditTime: 2023-04-23 09:16:58
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -2648,7 +2648,7 @@ def tstp_lin_master_request(AChnIdx: CHANNEL_INDEX, ANAD: c_int8, AData: bytearr
     return r
 
 
-def tstp_lin_master_request_intervalms(AChnIdx: CHANNEL_INDEX, AData: c_int8):
+def tstp_lin_master_request_intervalms(AChnIdx: CHANNEL_INDEX, AData: c_uint16):
     r = dll.tstp_lin_master_request_intervalms(AChnIdx, AData)
     return r
 
@@ -2658,7 +2658,7 @@ def tstp_lin_reset(AChnIdx: CHANNEL_INDEX):
     return r
 
 
-def tstp_lin_slave_response_intervalms(AChnIdx: CHANNEL_INDEX, AData: c_int8):
+def tstp_lin_slave_response_intervalms(AChnIdx: CHANNEL_INDEX, AData: c_uint16):
     r = dll.tstp_lin_slave_response_intervalms(AChnIdx, AData)
     return r
 

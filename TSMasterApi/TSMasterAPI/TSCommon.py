@@ -1,8 +1,13 @@
+'''
+Author: seven 865762826@qq.com
+Date: 2023-04-21 11:59:15
+LastEditors: seven 865762826@qq.com
+LastEditTime: 2023-04-23 13:36:50
+'''
 from TSDirver import *
 from TSStructure import *  
 from TSEnumdefine import *  
 
-from TSCallback import PCAN,PCANFD,PLIN,PFlexray
 
 # Common Functions
 
@@ -195,6 +200,36 @@ tsapp_disconnect.argtypes = []
 tsapp_disconnect.restype = TS_ReturnType
 tsapp_disconnect.errcheck = check_status_operation
 
+# 开始录制报文
+tsapp_start_logging = dll.tsapp_start_logging
+tsapp_start_logging.argtypes = [c_char_p]  
+tsapp_start_logging.restype = TS_ReturnType
+tsapp_start_logging.errcheck = check_status_operation
+
+# 停止录制报文
+tsapp_stop_logging = dll.tsapp_stop_logging
+tsapp_stop_logging.argtypes = []  
+tsapp_stop_logging.restype = TS_ReturnType
+tsapp_stop_logging.errcheck = check_status_operation
+
+# 打开TsMaster窗口
+tsapp_show_tsmaster_window = dll.tsapp_show_tsmaster_window
+tsapp_show_tsmaster_window.argtypes = [c_char_p,c_bool]  
+tsapp_show_tsmaster_window.restype = TS_ReturnType
+tsapp_show_tsmaster_window.errcheck = check_status_operation
+
+# 注销所有预发送事件
+tsapp_unregister_pretx_events_all = dll.tsapp_unregister_pretx_events_all
+tsapp_unregister_pretx_events_all.argtypes = [ps32]  
+tsapp_unregister_pretx_events_all.restype = TS_ReturnType
+tsapp_unregister_pretx_events_all.errcheck = check_status_operation
+
+# 注销所有发送_接收事件
+tsapp_unregister_events_all = dll.tsapp_unregister_events_all
+tsapp_unregister_events_all.argtypes = [ps32]  
+tsapp_unregister_events_all.restype = TS_ReturnType
+tsapp_unregister_events_all.errcheck = check_status_operation
+
 #增加应用程序
 tsapp_add_application = dll.tsapp_add_application
 tsapp_add_application.argtypes = [c_char_p]  
@@ -246,10 +281,6 @@ tsfifo_disable_receive_error_frames.restype = None
 tsfifo_enable_receive_error_frames = dll.tsfifo_enable_receive_error_frames
 tsfifo_enable_receive_error_frames.argtypes = [] 
 tsfifo_enable_receive_error_frames.restype = None
-
-
-
-
 
 
 
@@ -449,6 +480,114 @@ tsapp_unregister_event_canfd.argtypes = [ps32,OnTx_RxFUNC_CANFD]
 tsapp_unregister_event_canfd.restype = TS_ReturnType
 tsapp_unregister_event_canfd.errcheck = check_status_operation
 
+# can db info
+
+# 载入数据库
+tsdb_load_can_db = dll.tsdb_load_can_db
+tsdb_load_can_db.argtypes = [c_char_p,c_char_p,ps32]  
+tsdb_load_can_db.restype = TS_ReturnType
+tsdb_load_can_db.errcheck = check_status_operation
+
+# 卸载指定数据库
+tsdb_unload_can_db = dll.tsdb_unload_can_db
+tsdb_unload_can_db.argtypes = [s32]  
+tsdb_unload_can_db.restype = TS_ReturnType
+tsdb_unload_can_db.errcheck = check_status_operation
+
+# 卸载所有数据库
+tsdb_unload_can_dbs = dll.tsdb_unload_can_dbs
+tsdb_unload_can_dbs.argtypes = []  
+tsdb_unload_can_dbs.restype = TS_ReturnType
+tsdb_unload_can_dbs.errcheck = check_status_operation
+
+# 获取加载的数据库数量
+tsdb_get_can_db_count = dll.tsdb_get_can_db_count
+tsdb_get_can_db_count.argtypes = [ps32]  
+tsdb_get_can_db_count.restype = TS_ReturnType
+tsdb_get_can_db_count.errcheck = check_status_operation
+
+# 通过索引获取数据库id
+tsdb_get_can_db_id = dll.tsdb_get_can_db_id
+tsdb_get_can_db_id.argtypes = [s32,ps32]  
+tsdb_get_can_db_id.restype = TS_ReturnType
+tsdb_get_can_db_id.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的DB信息
+tsdb_get_can_db_properties_by_address = dll.tsdb_get_can_db_properties_by_address
+tsdb_get_can_db_properties_by_address.argtypes = [c_char_p,PDBProperties]  
+tsdb_get_can_db_properties_by_address.restype = TS_ReturnType
+tsdb_get_can_db_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的DB信息
+tsdb_get_can_db_properties_by_index = dll.tsdb_get_can_db_properties_by_index
+tsdb_get_can_db_properties_by_index.argtypes = [PDBProperties]  
+tsdb_get_can_db_properties_by_index.restype = TS_ReturnType
+tsdb_get_can_db_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的ECU信息
+tsdb_get_can_db_ecu_properties_by_address = dll.tsdb_get_can_db_ecu_properties_by_address
+tsdb_get_can_db_ecu_properties_by_address.argtypes = [c_char_p,PDBECUProperties]  
+tsdb_get_can_db_ecu_properties_by_address.restype = TS_ReturnType
+tsdb_get_can_db_ecu_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的ECU信息
+tsdb_get_can_db_ecu_properties_by_index = dll.tsdb_get_can_db_ecu_properties_by_index
+tsdb_get_can_db_ecu_properties_by_index.argtypes = [PDBECUProperties]  
+tsdb_get_can_db_ecu_properties_by_index.restype = TS_ReturnType
+tsdb_get_can_db_ecu_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Frame信息
+tsdb_get_can_db_frame_properties_by_address = dll.tsdb_get_can_db_frame_properties_by_address
+tsdb_get_can_db_frame_properties_by_address.argtypes = [c_char_p,PDBFrameProperties]  
+tsdb_get_can_db_frame_properties_by_address.restype = TS_ReturnType
+tsdb_get_can_db_frame_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Frame信息
+tsdb_get_can_db_frame_properties_by_index = dll.tsdb_get_can_db_frame_properties_by_index
+tsdb_get_can_db_frame_properties_by_index.argtypes = [PDBFrameProperties]  
+tsdb_get_can_db_frame_properties_by_index.restype = TS_ReturnType
+tsdb_get_can_db_frame_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Frame信息
+tsdb_get_can_db_frame_properties_by_db_index = dll.tsdb_get_can_db_frame_properties_by_db_index
+tsdb_get_can_db_frame_properties_by_db_index.argtypes = [s32,s32,PDBFrameProperties]  
+tsdb_get_can_db_frame_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_can_db_frame_properties_by_db_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Signal信息
+tsdb_get_can_db_signal_properties_by_address = dll.tsdb_get_can_db_signal_properties_by_address
+tsdb_get_can_db_signal_properties_by_address.argtypes = [c_char_p,PDBSignalProperties]  
+tsdb_get_can_db_signal_properties_by_address.restype = TS_ReturnType
+tsdb_get_can_db_signal_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Signal信息
+tsdb_get_can_db_signal_properties_by_index = dll.tsdb_get_can_db_signal_properties_by_index
+tsdb_get_can_db_signal_properties_by_index.argtypes = [PDBSignalProperties]  
+tsdb_get_can_db_signal_properties_by_index.restype = TS_ReturnType
+tsdb_get_can_db_signal_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Signal信息
+tsdb_get_can_db_signal_properties_by_db_index = dll.tsdb_get_can_db_signal_properties_by_db_index
+tsdb_get_can_db_signal_properties_by_db_index.argtypes = [s32,s32,PDBSignalProperties]  
+tsdb_get_can_db_signal_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_can_db_signal_properties_by_db_index.errcheck = check_status_operation
+
+# 通过Frame索引获取指定数据库的Signal信息
+tsdb_get_can_db_signal_properties_by_frame_index = dll.tsdb_get_can_db_signal_properties_by_frame_index
+tsdb_get_can_db_signal_properties_by_frame_index.argtypes = [s32,s32,s32,PDBSignalProperties]  
+tsdb_get_can_db_signal_properties_by_frame_index.restype = TS_ReturnType
+tsdb_get_can_db_signal_properties_by_frame_index.errcheck = check_status_operation
+
+# 获取报文中信号值
+tscom_get_can_signal_value = dll.tscom_get_can_signal_value #函数对象
+tscom_get_can_signal_value.argtypes = [PCANSignal,pu8] #指定参数类型
+tscom_get_can_signal_value.restype = c_double 
+
+# 设置报文中的信号值
+tscom_set_can_signal_value = dll.tscom_set_can_signal_value #函数对象
+tscom_set_can_signal_value.argtypes = [PCANSignal,pu8,double] #指定参数类型
+tscom_set_can_signal_value.restype = TS_ReturnType 
+tscom_set_can_signal_value.errcheck = check_status_operation
 
 # LIN API
 
@@ -523,8 +662,137 @@ tsapp_unregister_event_lin.argtypes = [ps32,OnTx_RxFUNC_LIN]
 tsapp_unregister_event_lin.restype = TS_ReturnType
 tsapp_unregister_event_lin.errcheck = check_status_operation
 
+# lin db info
+
+# 载入数据库
+tsdb_load_lin_db = dll.tsdb_load_lin_db
+tsdb_load_lin_db.argtypes = [c_char_p,c_char_p,ps32]  
+tsdb_load_lin_db.restype = TS_ReturnType
+tsdb_load_lin_db.errcheck = check_status_operation
+
+# 卸载指定数据库
+tsdb_unload_lin_db = dll.tsdb_unload_lin_db
+tsdb_unload_lin_db.argtypes = [s32]  
+tsdb_unload_lin_db.restype = TS_ReturnType
+tsdb_unload_lin_db.errcheck = check_status_operation
+
+# 卸载所有数据库
+tsdb_unload_lin_dbs = dll.tsdb_unload_lin_dbs
+tsdb_unload_lin_dbs.argtypes = []  
+tsdb_unload_lin_dbs.restype = TS_ReturnType
+tsdb_unload_lin_dbs.errcheck = check_status_operation
+
+# 获取加载的数据库数量
+tsdb_get_lin_db_count = dll.tsdb_get_lin_db_count
+tsdb_get_lin_db_count.argtypes = [ps32]  
+tsdb_get_lin_db_count.restype = TS_ReturnType
+tsdb_get_lin_db_count.errcheck = check_status_operation
+
+# 通过索引获取数据库id
+tsdb_get_lin_db_id = dll.tsdb_get_lin_db_id
+tsdb_get_lin_db_id.argtypes = [s32,ps32]  
+tsdb_get_lin_db_id.restype = TS_ReturnType
+tsdb_get_lin_db_id.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的DB信息
+tsdb_get_lin_db_properties_by_address = dll.tsdb_get_lin_db_properties_by_address
+tsdb_get_lin_db_properties_by_address.argtypes = [c_char_p,PDBProperties]  
+tsdb_get_lin_db_properties_by_address.restype = TS_ReturnType
+tsdb_get_lin_db_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的DB信息
+tsdb_get_lin_db_properties_by_index = dll.tsdb_get_lin_db_properties_by_index
+tsdb_get_lin_db_properties_by_index.argtypes = [PDBProperties]  
+tsdb_get_lin_db_properties_by_index.restype = TS_ReturnType
+tsdb_get_lin_db_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的ECU信息
+tsdb_get_lin_db_ecu_properties_by_address = dll.tsdb_get_lin_db_ecu_properties_by_address
+tsdb_get_lin_db_ecu_properties_by_address.argtypes = [c_char_p,PDBECUProperties]  
+tsdb_get_lin_db_ecu_properties_by_address.restype = TS_ReturnType
+tsdb_get_lin_db_ecu_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的ECU信息
+tsdb_get_lin_db_ecu_properties_by_index = dll.tsdb_get_lin_db_ecu_properties_by_index
+tsdb_get_lin_db_ecu_properties_by_index.argtypes = [PDBECUProperties]  
+tsdb_get_lin_db_ecu_properties_by_index.restype = TS_ReturnType
+tsdb_get_lin_db_ecu_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Frame信息
+tsdb_get_lin_db_frame_properties_by_address = dll.tsdb_get_lin_db_frame_properties_by_address
+tsdb_get_lin_db_frame_properties_by_address.argtypes = [c_char_p,PDBFrameProperties]  
+tsdb_get_lin_db_frame_properties_by_address.restype = TS_ReturnType
+tsdb_get_lin_db_frame_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Frame信息
+tsdb_get_lin_db_frame_properties_by_index = dll.tsdb_get_lin_db_frame_properties_by_index
+tsdb_get_lin_db_frame_properties_by_index.argtypes = [PDBFrameProperties]  
+tsdb_get_lin_db_frame_properties_by_index.restype = TS_ReturnType
+tsdb_get_lin_db_frame_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Frame信息
+tsdb_get_lin_db_frame_properties_by_db_index = dll.tsdb_get_lin_db_frame_properties_by_db_index
+tsdb_get_lin_db_frame_properties_by_db_index.argtypes = [s32,s32,PDBFrameProperties]  
+tsdb_get_lin_db_frame_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_lin_db_frame_properties_by_db_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Signal信息
+tsdb_get_lin_db_signal_properties_by_address = dll.tsdb_get_lin_db_signal_properties_by_address
+tsdb_get_lin_db_signal_properties_by_address.argtypes = [c_char_p,PDBSignalProperties]  
+tsdb_get_lin_db_signal_properties_by_address.restype = TS_ReturnType
+tsdb_get_lin_db_signal_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Signal信息
+tsdb_get_lin_db_signal_properties_by_index = dll.tsdb_get_lin_db_signal_properties_by_index
+tsdb_get_lin_db_signal_properties_by_index.argtypes = [PDBSignalProperties]  
+tsdb_get_lin_db_signal_properties_by_index.restype = TS_ReturnType
+tsdb_get_lin_db_signal_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Signal信息
+tsdb_get_lin_db_signal_properties_by_db_index = dll.tsdb_get_lin_db_signal_properties_by_db_index
+tsdb_get_lin_db_signal_properties_by_db_index.argtypes = [s32,s32,PDBSignalProperties]  
+tsdb_get_lin_db_signal_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_lin_db_signal_properties_by_db_index.errcheck = check_status_operation
+
+# 通过Frame索引获取指定数据库的Signal信息
+tsdb_get_lin_db_signal_properties_by_frame_index = dll.tsdb_get_lin_db_signal_properties_by_frame_index
+tsdb_get_lin_db_signal_properties_by_frame_index.argtypes = [s32,s32,s32,PDBSignalProperties]  
+tsdb_get_lin_db_signal_properties_by_frame_index.restype = TS_ReturnType
+tsdb_get_lin_db_signal_properties_by_frame_index.errcheck = check_status_operation
+
+# 获取报文中信号值
+tscom_get_lin_signal_value = dll.tscom_get_lin_signal_value #函数对象
+tscom_get_lin_signal_value.argtypes = [PLINSignal,pu8] #指定参数类型
+tscom_get_lin_signal_value.restype = c_double 
+
+# 设置报文中的信号值
+tscom_set_lin_signal_value = dll.tscom_set_lin_signal_value #函数对象
+tscom_set_lin_signal_value.argtypes = [PLINSignal,pu8,double] #指定参数类型
+tscom_set_lin_signal_value.restype = TS_ReturnType 
+tscom_set_lin_signal_value.errcheck = check_status_operation
+
 
 # flexray API
+
+# 启动 flexray 网络
+tsflexray_start_net = dll.tsflexray_start_net
+tsflexray_start_net.argtypes = [s32,s32]  
+tsflexray_start_net.restype = TS_ReturnType
+tsflexray_start_net.errcheck = check_status_operation
+
+# 停止 flexray 网络
+tsflexray_stop_net = dll.tsflexray_stop_net
+tsflexray_stop_net.argtypes = [s32,s32]  
+tsflexray_stop_net.restype = TS_ReturnType
+tsflexray_stop_net.errcheck = check_status_operation
+
+# 使能wakeup_pattern
+tsflexray_wakeup_pattern = dll.tsflexray_wakeup_pattern
+tsflexray_wakeup_pattern.argtypes = [s32,s32]  
+tsflexray_wakeup_pattern.restype = TS_ReturnType
+tsflexray_wakeup_pattern.errcheck = check_status_operation
+
+
 # flexray 发送
 # 异步单帧发送flexray报文
 tsapp_transmit_flexray_async = dll.tsapp_transmit_flexray_async
@@ -594,6 +862,114 @@ tsapp_unregister_event_flexray.argtypes = [ps32,OnTx_RxFUNC_Flexray]
 tsapp_unregister_event_flexray.restype = TS_ReturnType
 tsapp_unregister_event_flexray.errcheck = check_status_operation
 
+# flexray db info
+
+# 载入数据库
+tsdb_load_flexray_db = dll.tsdb_load_flexray_db
+tsdb_load_flexray_db.argtypes = [c_char_p,c_char_p,ps32]  
+tsdb_load_flexray_db.restype = TS_ReturnType
+tsdb_load_flexray_db.errcheck = check_status_operation
+
+# 卸载指定数据库
+tsdb_unload_flexray_db = dll.tsdb_unload_flexray_db
+tsdb_unload_flexray_db.argtypes = [s32]  
+tsdb_unload_flexray_db.restype = TS_ReturnType
+tsdb_unload_flexray_db.errcheck = check_status_operation
+
+# 卸载所有数据库
+tsdb_unload_flexray_dbs = dll.tsdb_unload_flexray_dbs
+tsdb_unload_flexray_dbs.argtypes = []  
+tsdb_unload_flexray_dbs.restype = TS_ReturnType
+tsdb_unload_flexray_dbs.errcheck = check_status_operation
+
+# 获取加载的数据库数量
+tsdb_get_flexray_db_count = dll.tsdb_get_flexray_db_count
+tsdb_get_flexray_db_count.argtypes = [ps32]  
+tsdb_get_flexray_db_count.restype = TS_ReturnType
+tsdb_get_flexray_db_count.errcheck = check_status_operation
+
+# 通过索引获取数据库id
+tsdb_get_flexray_db_id = dll.tsdb_get_flexray_db_id
+tsdb_get_flexray_db_id.argtypes = [s32,ps32]  
+tsdb_get_flexray_db_id.restype = TS_ReturnType
+tsdb_get_flexray_db_id.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的DB信息
+tsdb_get_flexray_db_properties_by_address = dll.tsdb_get_flexray_db_properties_by_address
+tsdb_get_flexray_db_properties_by_address.argtypes = [c_char_p,PDBProperties]  
+tsdb_get_flexray_db_properties_by_address.restype = TS_ReturnType
+tsdb_get_flexray_db_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的DB信息
+tsdb_get_flexray_db_properties_by_index = dll.tsdb_get_flexray_db_properties_by_index
+tsdb_get_flexray_db_properties_by_index.argtypes = [PDBProperties]  
+tsdb_get_flexray_db_properties_by_index.restype = TS_ReturnType
+tsdb_get_flexray_db_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的ECU信息
+tsdb_get_flexray_db_ecu_properties_by_address = dll.tsdb_get_flexray_db_ecu_properties_by_address
+tsdb_get_flexray_db_ecu_properties_by_address.argtypes = [c_char_p,PDBECUProperties]  
+tsdb_get_flexray_db_ecu_properties_by_address.restype = TS_ReturnType
+tsdb_get_flexray_db_ecu_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的ECU信息
+tsdb_get_flexray_db_ecu_properties_by_index = dll.tsdb_get_flexray_db_ecu_properties_by_index
+tsdb_get_flexray_db_ecu_properties_by_index.argtypes = [PDBECUProperties]  
+tsdb_get_flexray_db_ecu_properties_by_index.restype = TS_ReturnType
+tsdb_get_flexray_db_ecu_properties_by_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Frame信息
+tsdb_get_flexray_db_frame_properties_by_address = dll.tsdb_get_flexray_db_frame_properties_by_address
+tsdb_get_flexray_db_frame_properties_by_address.argtypes = [c_char_p,PDBFrameProperties]  
+tsdb_get_flexray_db_frame_properties_by_address.restype = TS_ReturnType
+tsdb_get_flexray_db_frame_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Frame信息
+tsdb_get_flexray_db_frame_properties_by_index = dll.tsdb_get_flexray_db_frame_properties_by_index
+tsdb_get_flexray_db_frame_properties_by_index.argtypes = [PDBFrameProperties]  
+tsdb_get_flexray_db_frame_properties_by_index.restype = TS_ReturnType
+tsdb_get_flexray_db_frame_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Frame信息
+tsdb_get_flexray_db_frame_properties_by_db_index = dll.tsdb_get_flexray_db_frame_properties_by_db_index
+tsdb_get_flexray_db_frame_properties_by_db_index.argtypes = [s32,s32,PDBFrameProperties]  
+tsdb_get_flexray_db_frame_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_flexray_db_frame_properties_by_db_index.errcheck = check_status_operation
+
+# 通过地址获取指定数据库的Signal信息
+tsdb_get_flexray_db_signal_properties_by_address = dll.tsdb_get_flexray_db_signal_properties_by_address
+tsdb_get_flexray_db_signal_properties_by_address.argtypes = [c_char_p,PDBSignalProperties]  
+tsdb_get_flexray_db_signal_properties_by_address.restype = TS_ReturnType
+tsdb_get_flexray_db_signal_properties_by_address.errcheck = check_status_operation
+
+# 通过索引获取指定数据库的Signal信息
+tsdb_get_flexray_db_signal_properties_by_index = dll.tsdb_get_flexray_db_signal_properties_by_index
+tsdb_get_flexray_db_signal_properties_by_index.argtypes = [PDBSignalProperties]  
+tsdb_get_flexray_db_signal_properties_by_index.restype = TS_ReturnType
+tsdb_get_flexray_db_signal_properties_by_index.errcheck = check_status_operation
+
+# 通过数据库索引获取指定数据库的Signal信息
+tsdb_get_flexray_db_signal_properties_by_db_index = dll.tsdb_get_flexray_db_signal_properties_by_db_index
+tsdb_get_flexray_db_signal_properties_by_db_index.argtypes = [s32,s32,PDBSignalProperties]  
+tsdb_get_flexray_db_signal_properties_by_db_index.restype = TS_ReturnType
+tsdb_get_flexray_db_signal_properties_by_db_index.errcheck = check_status_operation
+
+# 通过Frame索引获取指定数据库的Signal信息
+tsdb_get_flexray_db_signal_properties_by_frame_index = dll.tsdb_get_flexray_db_signal_properties_by_frame_index
+tsdb_get_flexray_db_signal_properties_by_frame_index.argtypes = [s32,s32,s32,PDBSignalProperties]  
+tsdb_get_flexray_db_signal_properties_by_frame_index.restype = TS_ReturnType
+tsdb_get_flexray_db_signal_properties_by_frame_index.errcheck = check_status_operation
+
+# 获取报文中信号值
+tscom_get_flexray_signal_value = dll.tscom_get_flexray_signal_value #函数对象
+tscom_get_flexray_signal_value.argtypes = [PFlexRaySignal,pu8] #指定参数类型
+tscom_get_flexray_signal_value.restype = c_double 
+
+# 设置报文中的信号值
+tscom_set_flexray_signal_value = dll.tscom_set_flexray_signal_value #函数对象
+tscom_set_flexray_signal_value.argtypes = [PFlexRaySignal,pu8,double] #指定参数类型
+tscom_set_flexray_signal_value.restype = TS_ReturnType 
+tscom_set_flexray_signal_value.errcheck = check_status_operation
 
 # RBS 
 
@@ -680,6 +1056,12 @@ tscom_can_rbs_set_message_cycle_by_name.errcheck = check_status_operation
 
 # flexray RBS
 
+# 使能/失能flexray rbs功能
+tscom_flexray_rbs_enable = dll.tscom_flexray_rbs_enable
+tscom_flexray_rbs_enable.argtypes = [c_bool]  
+tscom_flexray_rbs_enable.restype = TS_ReturnType
+tscom_flexray_rbs_enable.errcheck = check_status_operation
+
 # 开启rbs
 tscom_flexray_rbs_start = dll.tscom_flexray_rbs_start
 tscom_flexray_rbs_start.argtypes = []  
@@ -751,6 +1133,48 @@ tscom_flexray_rbs_set_signal_value_by_element = dll.tscom_flexray_rbs_set_signal
 tscom_flexray_rbs_set_signal_value_by_element.argtypes = [s32,c_char_p,c_char_p,c_char_p,c_char_p,double]  
 tscom_flexray_rbs_set_signal_value_by_element.restype = TS_ReturnType
 tscom_flexray_rbs_set_signal_value_by_element.errcheck = check_status_operation
+
+# 开始批量修改信号
+tscom_flexray_rbs_batch_set_start = dll.tscom_flexray_rbs_batch_set_start
+tscom_flexray_rbs_batch_set_start.argtypes = []  
+tscom_flexray_rbs_batch_set_start.restype = TS_ReturnType
+tscom_flexray_rbs_batch_set_start.errcheck = check_status_operation
+
+# 结束批量修改信号 
+tscom_flexray_rbs_batch_set_end = dll.tscom_flexray_rbs_batch_set_end
+tscom_flexray_rbs_batch_set_end.argtypes = []  
+tscom_flexray_rbs_batch_set_end.restype = TS_ReturnType
+tscom_flexray_rbs_batch_set_end.errcheck = check_status_operation
+
+# 设置信号值 
+tscom_flexray_rbs_batch_set_signal = dll.tscom_flexray_rbs_batch_set_signal
+tscom_flexray_rbs_batch_set_signal.argtypes = [c_char_p,double]  
+tscom_flexray_rbs_batch_set_signal.restype = TS_ReturnType
+tscom_flexray_rbs_batch_set_signal.errcheck = check_status_operation
+
+# 设置信号为normal信号 
+tscom_flexray_rbs_set_normal_signal = dll.tscom_flexray_rbs_set_normal_signal
+tscom_flexray_rbs_set_normal_signal.argtypes = [c_char_p]  
+tscom_flexray_rbs_set_normal_signal.restype = TS_ReturnType
+tscom_flexray_rbs_set_normal_signal.errcheck = check_status_operation
+
+# 设置信号为RC信号 
+tscom_flexray_rbs_set_rc_signal = dll.tscom_flexray_rbs_set_rc_signal
+tscom_flexray_rbs_set_rc_signal.argtypes = [c_char_p]  
+tscom_flexray_rbs_set_rc_signal.restype = TS_ReturnType
+tscom_flexray_rbs_set_rc_signal.errcheck = check_status_operation
+
+# 设置rc信号值的限定范围 
+tscom_flexray_rbs_set_rc_signal_with_limit = dll.tscom_flexray_rbs_set_rc_signal_with_limit
+tscom_flexray_rbs_set_rc_signal_with_limit.argtypes = [c_char_p,s32,s32]  
+tscom_flexray_rbs_set_rc_signal_with_limit.restype = TS_ReturnType
+tscom_flexray_rbs_set_rc_signal_with_limit.errcheck = check_status_operation
+
+# 设置信号为crc信号 
+tscom_flexray_rbs_set_crc_signal = dll.tscom_flexray_rbs_set_crc_signal
+tscom_flexray_rbs_set_crc_signal.argtypes = [c_char_p,c_char_p,s32,s32]  
+tscom_flexray_rbs_set_crc_signal.restype = TS_ReturnType
+tscom_flexray_rbs_set_crc_signal.errcheck = check_status_operation
 
 
 # ONLINE REPLAY
@@ -886,7 +1310,9 @@ tslog_blf_write_end.argtypes = [s32]
 tslog_blf_write_end.restype = TS_ReturnType
 tslog_blf_write_end.errcheck = check_status_operation
 
-# 诊断
+# UDS诊断
+
+# CAN
 # 创建诊断服务
 tsdiag_can_create = dll.tsdiag_can_create
 tslog_blf_write_end.argtypes = [pu8,s32,u8,u8,s32,c_bool,s32,c_bool,s32,c_bool]
@@ -1014,6 +1440,58 @@ tsdiag_can_read_data_by_identifier.argtypes = [u8,u16,pu8,ps32]
 tsdiag_can_read_data_by_identifier.restype = TS_ReturnType
 tsdiag_can_read_data_by_identifier.errcheck = check_status_operation
 
+# LIN 诊断
+# 诊断请求
+tstp_lin_master_request = dll.tstp_lin_master_request
+tstp_lin_master_request.argtypes = [s32,u8,pu8,s32,s32]
+tstp_lin_master_request.restype = TS_ReturnType
+tstp_lin_master_request.errcheck = check_status_operation
+# 
+tstp_lin_master_request_intervalms = dll.tstp_lin_master_request_intervalms
+tstp_lin_master_request_intervalms.argtypes = [s32,u16]
+tstp_lin_master_request_intervalms.restype = TS_ReturnType
+tstp_lin_master_request_intervalms.errcheck = check_status_operation
+# 重启
+tstp_lin_reset = dll.tstp_lin_reset
+tstp_lin_reset.argtypes = [s32]
+tstp_lin_reset.restype = TS_ReturnType
+tstp_lin_reset.errcheck = check_status_operation
+
+# 从节点响应
+tstp_lin_slave_response_intervalms = dll.tstp_lin_slave_response_intervalms
+tstp_lin_slave_response_intervalms.argtypes = [s32,u16]
+tstp_lin_slave_response_intervalms.restype = TS_ReturnType
+tstp_lin_slave_response_intervalms.errcheck = check_status_operation
+
+# 22
+tsdiag_lin_read_data_by_identifier = dll.tsdiag_lin_read_data_by_identifier
+tsdiag_lin_read_data_by_identifier.argtypes = [s32,u8,u16,pu8,pu8,ps32,s32]
+tsdiag_lin_read_data_by_identifier.restype = TS_ReturnType
+tsdiag_lin_read_data_by_identifier.errcheck = check_status_operation
+
+# 2E
+tsdiag_lin_write_data_by_identifier = dll.tsdiag_lin_write_data_by_identifier
+tsdiag_lin_write_data_by_identifier.argtypes = [s32,u8,u16,pu8,s32,pu8,pu8,ps32,s32]
+tsdiag_lin_write_data_by_identifier.restype = TS_ReturnType
+tsdiag_lin_write_data_by_identifier.errcheck = check_status_operation
+
+# 10
+tsdiag_lin_session_control = dll.tsdiag_lin_session_control
+tsdiag_lin_session_control.argtypes = [s32,u8,u8,s32]
+tsdiag_lin_session_control.restype = TS_ReturnType
+tsdiag_lin_session_control.errcheck = check_status_operation
+
+# 
+tsdiag_lin_fault_memory_clear = dll.tsdiag_lin_fault_memory_clear
+tsdiag_lin_fault_memory_clear.argtypes = [s32,u8,u8,s32]
+tsdiag_lin_fault_memory_clear.restype = TS_ReturnType
+tsdiag_lin_fault_memory_clear.errcheck = check_status_operation
+
+# 
+tsdiag_lin_fault_memory_read = dll.tsdiag_lin_fault_memory_read
+tsdiag_lin_fault_memory_read.argtypes = [s32,u8,u8,s32]
+tsdiag_lin_fault_memory_read.restype = TS_ReturnType
+tsdiag_lin_fault_memory_read.errcheck = check_status_operation
 
 
 

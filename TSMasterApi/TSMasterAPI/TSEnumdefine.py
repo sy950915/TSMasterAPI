@@ -7,6 +7,13 @@ FilePath: \TSMasterAPI\TSMasterApi\TSMasterAPI\TSdefine.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
 from enum import IntEnum, IntFlag
+
+class MSGType(IntEnum):
+    CANMSG = 0
+    CANFDMSG = 1
+    LINMSG = 2
+    FlexrayMSG = 3
+
 class CHANNEL_INDEX(IntEnum):
     (CHN1, CHN2, CHN3, CHN4, CHN5, CHN6, CHN7, CHN8, CHN9, CHN10, CHN11, CHN12, CHN13, CHN14, CHN15, CHN16, CHN17,
         CHN18, CHN19, CHN20, CHN21, CHN22, CHN23, CHN24, CHN25, CHN26, CHN27, CHN28, CHN29, CHN30, CHN31, CHN32) = (
@@ -16,6 +23,25 @@ class CHANNEL_INDEX(IntEnum):
         30,
         31
     )
+
+HW_dict = {
+    "TS_UNKNOWN_DEVICE":0,
+    "TSCAN_PRO":1,
+    "TSCAN_Lite1" : 2,
+    "TC1001" : 3,
+    "TL1001" : 4,
+    "TC1011" : 5,
+    'TSInterface' : 6,
+    'TC1002' : 7,
+    'TC1014' : 8,
+    'TSCANFD2517' : 9,
+    'TC1026' : 10,
+    'TC1016' : 11,
+    'TC1012' : 12,
+    'TC1013' : 13,
+    'TLog1002' : 14,
+    'TC1034' : 15,
+}
 
 class TLIB_TS_Device_Sub_Type(IntEnum):
     '''在通道映射时,该tsapp_set_mapping_verbose函数的参数5为TS_USB_DEVICE时 填入下列准确类型'''
