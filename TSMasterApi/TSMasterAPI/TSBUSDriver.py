@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:19:14
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-23 17:29:17
+LastEditTime: 2023-04-24 10:03:01
 '''
 import time
 from TSCommon import *
@@ -13,8 +13,6 @@ mapping = {
     "LIN":{"CHNCount":4,"HW_Names":["TC1016","TC1016","TC1016"],"HW_Chns":["0,1","0","1"]},
     "Flexray":{"CHNCount":4,"HW_Names":["TC1034","TC1034","TC1034"],"HW_Chns":["0,1","0","1"]}
 }
-
-
 
 def set_mapping(mapping):
     AppName = c_char_p()
@@ -239,8 +237,8 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCANIsStdFrame'] = db_tx_frame.FCANIsStdFrame
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCANIsEdl'] = db_tx_frame.FCANIsEdl
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCANIsBrs'] = db_tx_frame.FCANIsBrs
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCANIdentifier'] = db_tx_frame.FCANIdentifier
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCANDLC'] = db_tx_frame.FCANDLC
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FIdentifier'] = db_tx_frame.FCANIdentifier
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FDLC'] = db_tx_frame.FCANDLC
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_tx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -267,8 +265,8 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCANIsStdFrame'] = db_rx_frame.FCANIsStdFrame
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCANIsEdl'] = db_rx_frame.FCANIsEdl
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCANIsBrs'] = db_rx_frame.FCANIsBrs
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCANIdentifier'] = db_rx_frame.FCANIdentifier
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCANDLC'] = db_rx_frame.FCANDLC
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FIdentifier'] = db_rx_frame.FCANIdentifier
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FDLC'] = db_rx_frame.FCANDLC
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_rx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -304,8 +302,8 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_tx_frame.FIsTx = True
                 tsdb_get_lin_db_frame_properties_by_index(db_tx_frame)
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName] = {}
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FLINIdentifier'] = db_tx_frame.FLINIdentifier
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FLINDLC'] = db_tx_frame.FLINDLC
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FIdentifier'] = db_tx_frame.FLINIdentifier
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FDLC'] = db_tx_frame.FLINDLC
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_tx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -328,8 +326,8 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_rx_frame.FIsTx = False
                 tsdb_get_lin_db_frame_properties_by_index(db_rx_frame)
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName] = {}
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FLINIdentifier'] = db_rx_frame.FLINIdentifier
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FLINDLC'] = db_rx_frame.FLINDLC
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FIdentifier'] = db_rx_frame.FLINIdentifier
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FDLC'] = db_rx_frame.FLINDLC
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_rx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -365,10 +363,10 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_tx_frame.FIsTx = True
                 tsdb_get_flexray_db_frame_properties_by_index(db_tx_frame)
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName] = {}
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FFRSlotId'] = db_tx_frame.FFRSlotId
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FFRBaseCycle'] = db_tx_frame.FFRBaseCycle
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FFRCycleRepetition'] = db_tx_frame.FFRCycleRepetition
-                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FFRDLC'] = db_tx_frame.FFRDLC
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FSlotId'] = db_tx_frame.FFRSlotId
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FBaseCycle'] = db_tx_frame.FFRBaseCycle
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FCycleRepetition'] = db_tx_frame.FFRCycleRepetition
+                db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['FDLC'] = db_tx_frame.FFRDLC
                 db_info[db_ecu.FName]['TX'][db_tx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_tx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -391,10 +389,10 @@ def get_db_info(msgType:MSGType,db_idx:int):
                 db_rx_frame.FIsTx = False
                 tsdb_get_flexray_db_frame_properties_by_index(db_rx_frame)
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName] = {}
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FFRSlotId'] = db_rx_frame.FFRSlotId
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FFRBaseCycle'] = db_rx_frame.FFRBaseCycle
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FFRCycleRepetition'] = db_rx_frame.FFRCycleRepetition
-                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FFRDLC'] = db_rx_frame.FFRDLC
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FSlotId'] = db_rx_frame.FFRSlotId
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FBaseCycle'] = db_rx_frame.FFRBaseCycle
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FCycleRepetition'] = db_rx_frame.FFRCycleRepetition
+                db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['FDLC'] = db_rx_frame.FFRDLC
                 db_info[db_ecu.FName]['RX'][db_rx_frame.FName]['Signals'] = {}
                 for Signal_idx in range(db_rx_frame.FSignalCount):
                     db_frame_signal = TDBSignalProperties()
@@ -435,10 +433,10 @@ def get_db_frame_info(msgType:MSGType,db_idx:int):
             frame = TDBFrameProperties()
             tsdb_get_flexray_db_frame_properties_by_db_index(db_idx,Frame_id,frame)
             Frame[frame.FName] ={}
-            Frame[frame.FName]['FFRSlotId'] = frame.FFRSlotId
-            Frame[frame.FName]['FFRBaseCycle'] = frame.FFRBaseCycle
-            Frame[frame.FName]['FFRCycleRepetition'] = frame.FFRCycleRepetition
-            Frame[frame.FName]['FFRDLC'] = frame.FFRDLC
+            Frame[frame.FName]['FSlotId'] = frame.FFRSlotId
+            Frame[frame.FName]['FBaseCycle'] = frame.FFRBaseCycle
+            Frame[frame.FName]['FCycleRepetition'] = frame.FFRCycleRepetition
+            Frame[frame.FName]['FDLC'] = frame.FFRDLC
             Frame[frame.FName]['Signals'] = {}
             for singal_index in range(frame.FSignalCount):
                 Signal = TDBSignalProperties()
@@ -459,8 +457,8 @@ def get_db_frame_info(msgType:MSGType,db_idx:int):
             Frame[frame.FName]['FCANIsStdFrame'] = frame.FCANIsStdFrame
             Frame[frame.FName]['FCANIsEdl'] = frame.FCANIsEdl
             Frame[frame.FName]['FCANIsBrs'] = frame.FCANIsBrs
-            Frame[frame.FName]['FCANIdentifier'] = frame.FCANIdentifier
-            Frame[frame.FName]['FCANDLC'] = frame.FCANDLC
+            Frame[frame.FName]['FIdentifier'] = frame.FCANIdentifier
+            Frame[frame.FName]['FDLC'] = frame.FCANDLC
             Frame[frame.FName]['Signals'] = {}
             for singal_index in range(frame.FSignalCount):
                 Signal = TDBSignalProperties()
@@ -477,8 +475,8 @@ def get_db_frame_info(msgType:MSGType,db_idx:int):
             frame = TDBFrameProperties()
             tsdb_get_lin_db_frame_properties_by_db_index(db_idx,Frame_id,frame)
             Frame[frame.FName] ={}
-            Frame[frame.FName]['FLINIdentifier'] = frame.FLINIdentifier
-            Frame[frame.FName]['FLINDLC'] = frame.FLINDLC
+            Frame[frame.FName]['FIdentifier'] = frame.FLINIdentifier
+            Frame[frame.FName]['FDLC'] = frame.FLINDLC
             Frame[frame.FName]['Signals'] = {}
             for singal_index in range(frame.FSignalCount):
                 Signal = TDBSignalProperties()
@@ -496,7 +494,7 @@ def get_signals_value(Msg_info:dict,msg:TLIBCAN or TLIBCANFD or TLIBLIN or TLIBF
         2、get_db_frame_info 得到的字典的 Frame_info['Frame1']
     """
     if isinstance(msg,TLIBCANFD) or isinstance(msg,TLIBCAN) or isinstance(msg,PCANFD) or isinstance(msg,PCAN):
-        if isinstance(Msg_info, dict) and (Msg_info['FCANIdentifier'] == msg.FIdentifier):
+        if isinstance(Msg_info, dict) and (Msg_info['FIdentifier'] == msg.FIdentifier):
             value = {}
             for key in Msg_info['Signals']:
                 value[key] = tscom_get_can_signal_value(Msg_info['Signals'][key]['def'],msg.FData)
@@ -524,15 +522,18 @@ def set_signals_value(Msg_info:dict,msg:TLIBCAN or TLIBCANFD or TLIBLIN or TLIBF
         2、get_db_frame_info 得到的字典的 Frame_info['Frame1']
     """
     if isinstance(msg,TLIBCANFD) or isinstance(msg,TLIBCAN) or isinstance(msg,PCANFD) or isinstance(msg,PCAN):
-        if isinstance(Msg_info, dict) and (Msg_info['FCANIdentifier'] == msg.FIdentifier):
+        if isinstance(Msg_info, dict) and (Msg_info['FIdentifier'] == msg.FIdentifier):
+            msg.FDLC = Msg_info['FDLC']
             for key in Msg_info['Signals']:
                 tscom_set_can_signal_value(Msg_info['Signals'][key]['def'],msg.FData,Msg_info['Signals'][key]['value'])
     elif isinstance(msg,PLIN) or isinstance(msg,TLIBLIN):
-        if isinstance(Msg_info, dict) and (Msg_info['FLINIdentifier'] == msg.FIdentifier):
+        if isinstance(Msg_info, dict) and (Msg_info['FIdentifier'] == msg.FIdentifier):
+            msg.FDLC = Msg_info['FDLC']
             for key in Msg_info:
                 tscom_set_lin_signal_value(Msg_info['Signals'][key]['def'],msg.FData,Msg_info['Signals'][key]['value'])  
     elif isinstance(msg,PFlexray)or isinstance(msg,TLIBFlexray):
-        if isinstance(Msg_info, dict) and (Msg_info['FFRSlotId'] == msg.FFSlotId and msg.FCycleNumber % Msg_info['FFRCycleRepetition'] == Msg_info['FFRBaseCycle']):
+        if isinstance(Msg_info, dict) and (Msg_info['FSlotId'] == msg.FFSlotId and msg.FCycleNumber % Msg_info['FCycleRepetition'] == Msg_info['FBaseCycle']):
+            msg.FDLC = Msg_info['FDLC']
             for key in Msg_info['Signals']:
                 tscom_set_flexray_signal_value(Msg_info['Signals'][key]['def'],msg.FData,Msg_info['Signals'][key]['value'])  
     return None  # if not supported type or not supported msg type, return None
