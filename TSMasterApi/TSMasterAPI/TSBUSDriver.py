@@ -2,10 +2,11 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:19:14
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-24 10:03:01
+LastEditTime: 2023-05-05 11:07:38
+github:https://github.com/sy950915/TSMasterAPI.git
 '''
 import time
-from TSCommon import *
+from .TSCommon import *
 
 
 mapping = {
