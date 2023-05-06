@@ -206,12 +206,22 @@ def get_db_info(msgType:MSGType,db_idx:int):
                         signls
                     Frame1:
                         signls
-        ECU1:
             RX_Frames:
                     Frame0:
                         signls
                     Frame1:
+                        signls            
+        ECU1:
+            TX_Frames:
+                    Frame0:
                         signls
+                    Frame1:
+                        signls
+            RX_Frames:
+                    Frame0:
+                        signls
+                    Frame1:
+                        signls 
     """
     db_info = {}
     if msgType == MSGType.CANMSG or msgType == MSGType.CANFDMSG :
