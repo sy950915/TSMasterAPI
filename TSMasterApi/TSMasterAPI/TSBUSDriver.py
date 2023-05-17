@@ -2,11 +2,11 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:19:14
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-05-15 22:14:54
+LastEditTime: 2023-05-17 13:24:03
 github:https://github.com/sy950915/TSMasterAPI.git
 '''
 import time
-from .TSCommon import *
+from TSCommon import *
 
 Kbps_mapping = {
     "CAN":[[500,2000],[500,2000],[500,2000],[500,2000]],
@@ -96,6 +96,10 @@ def set_mapping(mapping):
         for i in range(mapping['CAN']['CHNCount']):
             if(len(mapping['Kbps_mapping']['CAN'][i])>1):
                 tsapp_configure_baudrate_canfd(i,mapping['Kbps_mapping']['CAN'][i][0],mapping['Kbps_mapping']['CAN'][i][1],TLIBCANFDControllerType.lfdtISOCAN,TLIBCANFDControllerMode.lfdmNormal, True)
+            elif len(mapping['Kbps_mapping']['CAN'][i]) == 1:
+                tsapp_configure_baudrate_can(i,mapping['Kbps_mapping']['CAN'][i][0],False, True)
+            else:
+                raise Exception("TSDriverOperationError: CAN Kbps "+ str(i) +" IS NULL")
     else:
         for i in range(mapping['CAN']['CHNCount']):
             if(len(mapping['Kbps_mapping']['CAN'][i])>1):
@@ -106,7 +110,6 @@ def set_mapping(mapping):
     else:
         for i in range(mapping['LIN']['CHNCount']):
                     tsapp_configure_baudrate_lin(i,19.2,LIN_PROTOCOL.LIN_PROTOCOL_21)
-
 def send_msg(msg:TLIBCAN or TLIBCANFD or TLIBLIN or TLIBFlexray,is_async = True,is_cycle = False,timeout = 0.1):
     """
     if is_cycle == True, timeout表示周期,单位为s,可以为小数,比如1ms 为0.001
@@ -582,6 +585,80 @@ def set_signals_value(Msg_info:dict,msg:TLIBCAN or TLIBCANFD or TLIBLIN or TLIBF
             for key in Msg_info['Signals']:
                 tscom_set_flexray_signal_value(Msg_info['Signals'][key]['def'],msg.FData,Msg_info['Signals'][key]['value'])  
     return None  # if not supported type or not supported msg type, return None
+def get_xml_info(xmlpathname:str):
+    return Fibex_parse(xmlpathname)
+def set_controller_config(xml_info_node,is_open_a=True, is_open_b=True, wakeup_chn=0, enable100_a=True, enable100_b=True,is_show_nullframe=True, is_Bridging=False):
+    fr_config = TLibFlexray_controller_config()
+    fr_config.NETWORK_MANAGEMENT_VECTOR_LENGTH = xml_info_node['NETWORK_MANAGEMENT_VECTOR_LENGTH']
+    fr_config.PAYLOAD_LENGTH_STATIC = xml_info_node['PAYLOAD_LENGTH_STATIC']
+    fr_config.LATEST_TX = xml_info_node['LATEST_TX']
+    fr_config.T_S_S_TRANSMITTER = xml_info_node['T_S_S_TRANSMITTER']
+    fr_config.CAS_RX_LOW_MAX = xml_info_node['CAS_RX_LOW_MAX']
+    fr_config.SPEED = xml_info_node['SPEED']
+    fr_config.WAKE_UP_SYMBOL_RX_WINDOW = xml_info_node['WAKE_UP_SYMBOL_RX_WINDOW']
+    fr_config.WAKE_UP_PATTERN = xml_info_node['WAKE_UP_PATTERN']
+    fr_config.WAKE_UP_SYMBOL_RX_IDLE = xml_info_node['WAKE_UP_SYMBOL_RX_IDLE']
+    fr_config.WAKE_UP_SYMBOL_RX_LOW = xml_info_node['WAKE_UP_SYMBOL_RX_LOW']
+    fr_config.WAKE_UP_SYMBOL_TX_IDLE = xml_info_node['WAKE_UP_SYMBOL_TX_IDLE']
+    fr_config.WAKE_UP_SYMBOL_TX_LOW = xml_info_node['WAKE_UP_SYMBOL_TX_LOW']
+    fr_config.channelAConnectedNode = 1 if is_open_a else 0
+    fr_config.channelBConnectedNode = 1 if is_open_b else 0
+    fr_config.channelASymbolTransmitted = 1  
+    fr_config.channelBSymbolTransmitted = 1  
+    fr_config.ALLOW_HALT_DUE_TO_CLOCK = xml_info_node['ALLOW_HALT_DUE_TO_CLOCK']
+    fr_config.SINGLE_SLOT_ENABLED = xml_info_node['SINGLE_SLOT_ENABLED']
+    fr_config.wake_up_idx = wakeup_chn
+    fr_config.ALLOW_PASSIVE_TO_ACTIVE = xml_info_node['ALLOW_PASSIVE_TO_ACTIVE']
+    fr_config.COLD_START_ATTEMPTS = xml_info_node['COLD_START_ATTEMPTS']
+    fr_config.synchFrameTransmitted = 1
+    fr_config.startupFrameTransmitted = xml_info_node['startupFrameTransmitted']
+    fr_config.LISTEN_TIMEOUT = xml_info_node['LISTEN_TIMEOUT']
+    fr_config.LISTEN_NOISE = xml_info_node['LISTEN_NOISE']
+    fr_config.MAX_WITHOUT_CLOCK_CORRECTION_PASSIVE = xml_info_node['MAX_WITHOUT_CLOCK_CORRECTION_PASSIVE']
+    fr_config.MAX_WITHOUT_CLOCK_CORRECTION_FATAL = xml_info_node['MAX_WITHOUT_CLOCK_CORRECTION_FATAL']
+    fr_config.MICRO_PER_CYCLE = xml_info_node['MICRO_PER_CYCLE']
+    fr_config.Macro_Per_Cycle = xml_info_node['MACRO_PER_CYCLE']
+    fr_config.SYNC_NODE_MAX = xml_info_node['SYNC_NODE_MAX']
+    fr_config.MICRO_INITIAL_OFFSET_A = xml_info_node['MICRO_INITIAL_OFFSET_A']
+    fr_config.MICRO_INITIAL_OFFSET_B = xml_info_node['MICRO_INITIAL_OFFSET_B']
+    fr_config.MACRO_INITIAL_OFFSET_A = xml_info_node['MACRO_INITIAL_OFFSET_A']
+    fr_config.MACRO_INITIAL_OFFSET_B = xml_info_node['MACRO_INITIAL_OFFSET_B']
+    fr_config.N_I_T = xml_info_node['N_I_T']
+    fr_config.OFFSET_CORRECTION_START = xml_info_node['OFFSET_CORRECTION_START']
+    fr_config.DELAY_COMPENSATION_A = xml_info_node['DELAY_COMPENSATION_A']
+    fr_config.DELAY_COMPENSATION_B = xml_info_node['DELAY_COMPENSATION_B']
+    fr_config.CLUSTER_DRIFT_DAMPING = xml_info_node['CLUSTER_DRIFT_DAMPING']
+    fr_config.DECODING_CORRECTION = xml_info_node['DECODING_CORRECTION']
+    fr_config.ACCEPTED_STARTUP_RANGE = xml_info_node['ACCEPTED_STARTUP_RANGE']
+    fr_config.MAX_DRIFT = xml_info_node['MAX_DRIFT']
+    fr_config.STATIC_SLOT = xml_info_node['STATIC_SLOT']
+    fr_config.NUMBER_OF_STATIC_SLOTS = xml_info_node['NUMBER_OF_STATIC_SLOTS']
+    fr_config.MINISLOT = xml_info_node['MINISLOT']
+    fr_config.NUMBER_OF_MINISLOTS = xml_info_node['NUMBER_OF_MINISLOTS']
+    fr_config.DYNAMIC_SLOT_IDLE_PHASE = xml_info_node['DYNAMIC_SLOT_IDLE_PHASE']
+    fr_config.ACTION_POINT_OFFSET = xml_info_node['ACTION_POINT_OFFSET']
+    fr_config.MINISLOT_ACTION_POINT_OFFSET = xml_info_node['MINISLOT_ACTION_POINT_OFFSET']
+    fr_config.OFFSET_CORRECTION_OUT = xml_info_node['OFFSET_CORRECTION_OUT']
+    fr_config.RATE_CORRECTION_OUT = xml_info_node['RATE_CORRECTION_OUT']
+    fr_config.EXTERN_OFFSET_CORRECTION = xml_info_node['EXTERN_OFFSET_CORRECTION']
+    fr_config.EXTERN_RATE_CORRECTION = xml_info_node['EXTERN_RATE_CORRECTION']
+    fr_config.config1_byte = 1
+        # if
+    fr_config.config_byte = 0xc
+    if is_Bridging:
+            fr_config.config_byte = 0x3c
+    fr_config.config_byte = fr_config.config_byte | (0x1 if enable100_a else 0x00) | (0x2 if enable100_b else 0x00) | (0x40 if is_show_nullframe else 0x00)
+    return fr_config
+def set_controller_frametrigger(ANodeIndex: s32,
+                                            AControllerConfig: TLibFlexray_controller_config,
+                                            AFrameLengthArray: bytearray,
+                                            AFrameNum: s32, AFrameTrigger: TLibTrigger_def, AFrameTriggerNum: s32,
+                                            ATimeoutMs: s32):
+    tsflexray_set_controller_frametrigger(ANodeIndex,AControllerConfig,AFrameLengthArray,AFrameNum,AFrameTrigger,AFrameTriggerNum,ATimeoutMs)
+def flexray_network_start(chnidx:s32,timeout:s32):
+    tsflexray_start_net(chnidx,timeout)
+def flexray_network_stop(chnidx:s32,timeout:s32):
+    tsflexray_stop_net(chnidx,timeout)
 
 # uds
 def create_uds():
@@ -591,6 +668,8 @@ if __name__ == "__main__":
     initialize_lib_tsmaster(b"TSMaster")
     set_mapping(mapping)
     ACAN = TLIBCANFD(FIdentifier= 0x701,FDLC=9,FData=[1,23,4,2,5,6,7])
+    xml_info = get_xml_info(r"C:\Users\yueto\Desktop\SDB21206_HX11_Low_BackboneFR_220513.xml")
+    controller =  set_controller_config(xml_info.Ecus['VGM'])
     can_db_info = get_db_info(MSGType.CANMSG,0)
     RET = get_signals_value(can_db_info['Engine']['TX']['FallbackMessage'],ACAN)
     print(RET)
@@ -611,3 +690,5 @@ if __name__ == "__main__":
     print(ACAN)
 
     finalize_lib_tsmaster()
+    
+

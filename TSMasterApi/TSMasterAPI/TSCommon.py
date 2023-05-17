@@ -2,12 +2,12 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-23 13:36:50
+LastEditTime: 2023-05-17 13:19:31
 '''
-from .TSDirver import *
-from .TSStructure import *  
-from .TSEnumdefine import *  
-
+from TSDirver import *
+from TSStructure import *  
+from TSEnumdefine import *  
+from TSFibex_parse import * 
 
 # Common Functions
 
@@ -154,7 +154,7 @@ tsapp_configure_canfd_regs.errcheck = check_status_operation
 # LIN 通道参数配置
 tsapp_configure_baudrate_lin = dll.tsapp_configure_baudrate_lin
 # (AIdxChn: CHANNEL_INDEX, ABaudrateKbps: int, LIN_PROTOCOL: LIN_PROTOCOL)
-tsapp_configure_baudrate_lin.argtypes = [s32, s32, s32]
+tsapp_configure_baudrate_lin.argtypes = [s32, c_float, s32]
 tsapp_configure_baudrate_lin.restype = TS_ReturnType
 tsapp_configure_baudrate_lin.errcheck = check_status_operation
 
@@ -792,6 +792,10 @@ tsflexray_wakeup_pattern.argtypes = [s32,s32]
 tsflexray_wakeup_pattern.restype = TS_ReturnType
 tsflexray_wakeup_pattern.errcheck = check_status_operation
 
+tsflexray_set_controller_frametrigger = dll.tsflexray_set_controller_frametrigger
+tsflexray_set_controller_frametrigger.argtypes = [s32,PLibFlexray_controller_config,c_char_p,s32,PLibTrigger_def,s32,s32]  
+tsflexray_set_controller_frametrigger.restype = TS_ReturnType
+tsflexray_set_controller_frametrigger.errcheck = check_status_operation
 
 # flexray 发送
 # 异步单帧发送flexray报文

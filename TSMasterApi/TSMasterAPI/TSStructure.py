@@ -398,7 +398,7 @@ class TLibFlexray_controller_config(Structure):
                 # bit5: 1：chb桥接使能    0：不使能
                 # bit6: 1:not ignore NULL Frame  0: ignore NULL Frame
                 ]
-
+PLibFlexray_controller_config = POINTER(TLibFlexray_controller_config) 
 class TLibTrigger_def(Structure):
     """
     Trigger 结构体
@@ -419,7 +419,7 @@ class TLibTrigger_def(Structure):
                 # bit7: 帧类型：0 - 静态，1 - 动态
                 ("recv", c_uint8),
                 ]
-
+PLibTrigger_def = POINTER(TLibTrigger_def)
 class TLIBHWInfo(Structure):
     """
     描述:TLib 的硬件信息结构体类型
