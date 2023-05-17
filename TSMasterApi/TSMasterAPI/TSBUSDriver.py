@@ -2,11 +2,11 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:19:14
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-05-17 13:24:03
+LastEditTime: 2023-05-17 14:16:11
 github:https://github.com/sy950915/TSMasterAPI.git
 '''
 import time
-from TSCommon import *
+from .TSCommon import *
 
 Kbps_mapping = {
     "CAN":[[500,2000],[500,2000],[500,2000],[500,2000]],

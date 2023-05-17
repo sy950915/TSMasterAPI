@@ -4,10 +4,10 @@ Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
 LastEditTime: 2023-05-17 13:19:31
 '''
-from TSDirver import *
-from TSStructure import *  
-from TSEnumdefine import *  
-from TSFibex_parse import * 
+from .TSDirver import *
+from .TSStructure import *  
+from .TSEnumdefine import *  
+from .TSFibex_parse import * 
 
 # Common Functions
 
