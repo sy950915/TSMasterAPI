@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 10:21:17
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-23 10:37:49
+LastEditTime: 2023-05-17 14:26:06
 '''
 from ctypes import Structure,c_char,c_int32,c_bool,c_uint8,c_int64,c_uint64,c_uint32,c_uint16,c_double,c_char_p,byref,string_at,string_at,CDLL,CFUNCTYPE,POINTER,pointer,c_void_p,c_float,c_int16,c_int8,WINFUNCTYPE
 
@@ -398,6 +398,68 @@ class TLibFlexray_controller_config(Structure):
                 # bit5: 1：chb桥接使能    0：不使能
                 # bit6: 1:not ignore NULL Frame  0: ignore NULL Frame
                 ]
+    def set_controller_config(self,xml_,is_open_a=True, is_open_b=True, wakeup_chn=0, enable100_a=True, enable100_b=True,is_show_nullframe=True, is_Bridging=False):
+        if isinstance(xml_,dict):
+            self.NETWORK_MANAGEMENT_VECTOR_LENGTH = xml_['NETWORK_MANAGEMENT_VECTOR_LENGTH']
+            self.PAYLOAD_LENGTH_STATIC = xml_['PAYLOAD_LENGTH_STATIC']
+            self.LATEST_TX = xml_['LATEST_TX']
+            self.T_S_S_TRANSMITTER = xml_['T_S_S_TRANSMITTER']
+            self.CAS_RX_LOW_MAX = xml_['CAS_RX_LOW_MAX']
+            self.SPEED = xml_['SPEED']
+            self.WAKE_UP_SYMBOL_RX_WINDOW = xml_['WAKE_UP_SYMBOL_RX_WINDOW']
+            self.WAKE_UP_PATTERN = xml_['WAKE_UP_PATTERN']
+            self.WAKE_UP_SYMBOL_RX_IDLE = xml_['WAKE_UP_SYMBOL_RX_IDLE']
+            self.WAKE_UP_SYMBOL_RX_LOW = xml_['WAKE_UP_SYMBOL_RX_LOW']
+            self.WAKE_UP_SYMBOL_TX_IDLE = xml_['WAKE_UP_SYMBOL_TX_IDLE']
+            self.WAKE_UP_SYMBOL_TX_LOW = xml_['WAKE_UP_SYMBOL_TX_LOW']
+            self.channelAConnectedNode = 1 if is_open_a else 0
+            self.channelBConnectedNode = 1 if is_open_b else 0
+            self.channelASymbolTransmitted = 1  
+            self.channelBSymbolTransmitted = 1  
+            self.ALLOW_HALT_DUE_TO_CLOCK = xml_['ALLOW_HALT_DUE_TO_CLOCK']
+            self.SINGLE_SLOT_ENABLED = xml_['SINGLE_SLOT_ENABLED']
+            self.wake_up_idx = wakeup_chn
+            self.ALLOW_PASSIVE_TO_ACTIVE = xml_['ALLOW_PASSIVE_TO_ACTIVE']
+            self.COLD_START_ATTEMPTS = xml_['COLD_START_ATTEMPTS']
+            self.synchFrameTransmitted = 1
+            self.startupFrameTransmitted = xml_['startupFrameTransmitted']
+            self.LISTEN_TIMEOUT = xml_['LISTEN_TIMEOUT']
+            self.LISTEN_NOISE = xml_['LISTEN_NOISE']
+            self.MAX_WITHOUT_CLOCK_CORRECTION_PASSIVE = xml_['MAX_WITHOUT_CLOCK_CORRECTION_PASSIVE']
+            self.MAX_WITHOUT_CLOCK_CORRECTION_FATAL = xml_['MAX_WITHOUT_CLOCK_CORRECTION_FATAL']
+            self.MICRO_PER_CYCLE = xml_['MICRO_PER_CYCLE']
+            self.Macro_Per_Cycle = xml_['MACRO_PER_CYCLE']
+            self.SYNC_NODE_MAX = xml_['SYNC_NODE_MAX']
+            self.MICRO_INITIAL_OFFSET_A = xml_['MICRO_INITIAL_OFFSET_A']
+            self.MICRO_INITIAL_OFFSET_B = xml_['MICRO_INITIAL_OFFSET_B']
+            self.MACRO_INITIAL_OFFSET_A = xml_['MACRO_INITIAL_OFFSET_A']
+            self.MACRO_INITIAL_OFFSET_B = xml_['MACRO_INITIAL_OFFSET_B']
+            self.N_I_T = xml_['N_I_T']
+            self.OFFSET_CORRECTION_START = xml_['OFFSET_CORRECTION_START']
+            self.DELAY_COMPENSATION_A = xml_['DELAY_COMPENSATION_A']
+            self.DELAY_COMPENSATION_B = xml_['DELAY_COMPENSATION_B']
+            self.CLUSTER_DRIFT_DAMPING = xml_['CLUSTER_DRIFT_DAMPING']
+            self.DECODING_CORRECTION = xml_['DECODING_CORRECTION']
+            self.ACCEPTED_STARTUP_RANGE = xml_['ACCEPTED_STARTUP_RANGE']
+            self.MAX_DRIFT = xml_['MAX_DRIFT']
+            self.STATIC_SLOT = xml_['STATIC_SLOT']
+            self.NUMBER_OF_STATIC_SLOTS = xml_['NUMBER_OF_STATIC_SLOTS']
+            self.MINISLOT = xml_['MINISLOT']
+            self.NUMBER_OF_MINISLOTS = xml_['NUMBER_OF_MINISLOTS']
+            self.DYNAMIC_SLOT_IDLE_PHASE = xml_['DYNAMIC_SLOT_IDLE_PHASE']
+            self.ACTION_POINT_OFFSET = xml_['ACTION_POINT_OFFSET']
+            self.MINISLOT_ACTION_POINT_OFFSET = xml_['MINISLOT_ACTION_POINT_OFFSET']
+            self.OFFSET_CORRECTION_OUT = xml_['OFFSET_CORRECTION_OUT']
+            self.RATE_CORRECTION_OUT = xml_['RATE_CORRECTION_OUT']
+            self.EXTERN_OFFSET_CORRECTION = xml_['EXTERN_OFFSET_CORRECTION']
+            self.EXTERN_RATE_CORRECTION = xml_['EXTERN_RATE_CORRECTION']
+            self.config1_byte = 1
+                # if
+            self.config_byte = 0xc
+            if is_Bridging:
+                    self.config_byte = 0x3c
+            self.config_byte = self.config_byte | (0x1 if enable100_a else 0x00) | (0x2 if enable100_b else 0x00) | (0x40 if is_show_nullframe else 0x00)
+        return self
 PLibFlexray_controller_config = POINTER(TLibFlexray_controller_config) 
 class TLibTrigger_def(Structure):
     """
