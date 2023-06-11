@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-05-17 14:59:34
+LastEditTime: 2023-06-11 13:37:22
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -25,7 +25,7 @@ def check_status_operation(result, function, arguments):
     if result != 0:
         ret = c_char_p()
         tsapp_get_error_description(result, ret)
-        raise Exception("TSDriverOperationError: " + str(function.__name__) + "(" + str(arguments) + ") returned " + str(result) + ": " + str(ret.value))
+        print("TSDriverOperationError: " + str(function.__name__) + "(" + str(arguments) + ") returned " + str(result) + ": " + str(ret.value))
     return result
 
 # 初始化函数 API函数使用之前 必须调用该函数 否则无法正常使用 在工程起始时 调用
@@ -1319,12 +1319,12 @@ tslog_blf_write_end.errcheck = check_status_operation
 # CAN
 # 创建诊断服务
 tsdiag_can_create = dll.tsdiag_can_create
-tslog_blf_write_end.argtypes = [pu8,s32,u8,u8,s32,c_bool,s32,c_bool,s32,c_bool]
-tslog_blf_write_end.restype = TS_ReturnType
-tslog_blf_write_end.errcheck = check_status_operation
+tsdiag_can_create.argtypes = [pu8,s32,u8,u8,s32,c_bool,s32,c_bool,s32,c_bool]
+tsdiag_can_create.restype = TS_ReturnType
+tsdiag_can_create.errcheck = check_status_operation
 
 # 删除指定诊断服务
-tsdiag_can_delete = dll.tsdiag_can_create
+tsdiag_can_delete = dll.tsdiag_can_delete
 tsdiag_can_delete.argtypes = [u8]
 tsdiag_can_delete.restype = TS_ReturnType
 tsdiag_can_delete.errcheck = check_status_operation
@@ -1410,19 +1410,19 @@ tsdiag_can_security_access_send_key.errcheck = check_status_operation
 
 # 34
 tsdiag_can_request_download = dll.tsdiag_can_request_download
-tsdiag_can_request_download.argtypes = [u8,s32,s32]
+tsdiag_can_request_download.argtypes = [u8,u32,u32]
 tsdiag_can_request_download.restype = TS_ReturnType
 tsdiag_can_request_download.errcheck = check_status_operation
 
 # 35
 tsdiag_can_request_upload = dll.tsdiag_can_request_upload
-tsdiag_can_request_upload.argtypes = [u8,s32,s32]
+tsdiag_can_request_upload.argtypes = [u8,u32,u32]
 tsdiag_can_request_upload.restype = TS_ReturnType
 tsdiag_can_request_upload.errcheck = check_status_operation
 
 # 36
 tsdiag_can_transfer_data = dll.tsdiag_can_transfer_data
-tsdiag_can_transfer_data.argtypes = [u8,pu8,s32,s32]
+tsdiag_can_transfer_data.argtypes = [u8,pu8,u32,u32]
 tsdiag_can_transfer_data.restype = TS_ReturnType
 tsdiag_can_transfer_data.errcheck = check_status_operation
 
@@ -1434,7 +1434,7 @@ tsdiag_can_request_transfer_exit.errcheck = check_status_operation
 
 # 2E
 tsdiag_can_write_data_by_identifier = dll.tsdiag_can_write_data_by_identifier
-tsdiag_can_write_data_by_identifier.argtypes = [u8,u16,pu8,s32]
+tsdiag_can_write_data_by_identifier.argtypes = [u8,u16,pu8,u32]
 tsdiag_can_write_data_by_identifier.restype = TS_ReturnType
 tsdiag_can_write_data_by_identifier.errcheck = check_status_operation
 
