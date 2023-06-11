@@ -45,7 +45,7 @@ def On_CAN_EVENT(OBJ, ACAN):
 
 def On_CANFD_EVENT(OBJ, ACAN):
     global count_Event
-    if (ACAN.contents.FFIdentifier == 0x1 and ACAN.contents.FIdxChn == 0):
+    if (ACAN.contents.FIdentifier == 0x1 and ACAN.contents.FIdxChn == 0):
         print("CANFD回调接收成功")
         for i in ACAN.contents.FData:
             print('%#x' % i, end=' ')
