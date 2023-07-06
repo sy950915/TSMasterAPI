@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-06-11 13:37:22
+LastEditTime: 2023-07-06 20:37:12
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -885,6 +885,19 @@ tsdb_unload_flexray_dbs = dll.tsdb_unload_flexray_dbs
 tsdb_unload_flexray_dbs.argtypes = []  
 tsdb_unload_flexray_dbs.restype = TS_ReturnType
 tsdb_unload_flexray_dbs.errcheck = check_status_operation
+
+# get flexray cluster parameters by cluster name
+tsdb_get_flexray_cluster_parameters = dll.db_get_flexray_cluster_parameters
+tsdb_get_flexray_cluster_parameters.argtypes = [c_char_p,PFlexRayClusterParameters]  
+tsdb_get_flexray_cluster_parameters.restype = TS_ReturnType
+tsdb_get_flexray_cluster_parameters.errcheck = check_status_operation
+
+# get flexray controller parameters by cluster name and controller name
+tsdb_get_flexray_controller_parameters = dll.db_get_flexray_controller_parameters
+tsdb_get_flexray_controller_parameters.argtypes = [c_char_p,PFlexRayControllerParameters]  
+tsdb_get_flexray_controller_parameters.restype = TS_ReturnType
+tsdb_get_flexray_controller_parameters.errcheck = check_status_operation
+
 
 # 获取加载的数据库数量
 tsdb_get_flexray_db_count = dll.tsdb_get_flexray_db_count
