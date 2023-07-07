@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:19:14
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-05-17 14:16:11
+LastEditTime: 2023-07-07 15:59:38
 github:https://github.com/sy950915/TSMasterAPI.git
 '''
 import time
@@ -486,11 +486,13 @@ def get_db_frame_info(msgType:MSGType,db_idx:int):
             Frame[frame.FName.decode('utf8')]['FCycleRepetition'] = frame.FFRCycleRepetition
             Frame[frame.FName.decode('utf8')]['FDLC'] = frame.FFRDLC
             Frame[frame.FName.decode('utf8')]['Signals'] = {}
+            if frame.FName.decode('utf8') == "CemBackBoneFr02":
+                print(1)
             for singal_index in range(frame.FSignalCount):
                 Signal = TDBSignalProperties()
                 tsdb_get_flexray_db_signal_properties_by_frame_index(db_idx,Frame_id,singal_index,Signal)
                 Frame[frame.FName.decode('utf8')]['Signals'][Signal.FName.decode('utf8')] = {}
-                Frame[frame.FName.decode('utf8')]['Signals'][Signal.FName.decode('utf8')]['def'] =Signal.FFlexRaySignal
+                Frame[frame.FName.decode('utf8')]['Signals'][Signal.FName.decode('utf8')]['def'] = Signal.FFlexRaySignal
                 Frame[frame.FName.decode('utf8')]['Signals'][Signal.FName.decode('utf8')]['value'] = 0
                 del Signal
             del frame

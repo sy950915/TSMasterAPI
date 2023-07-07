@@ -1,15 +1,27 @@
 from TSMasterAPI import *
-def crc8(data, len, dataId):
+def crc8(data, dataId):
     data2 = [dataId & 0x00FF,(dataId & 0xFF00) >> 8] + data
     Rtn = 00^0X00
     for i in range(len(data2)):
-        Rtn = Rtn ^ data2[i]
-        for j in range(8): 
+        Rtn = (Rtn ^ data2[i])&0xff
+        for j in range(8):
             if (Rtn & 0x80):
-                Rtn = (Rtn << 1) ^ 0x1D
+                Rtn = ((Rtn << 1) ^ 0x1D)&0xff
             else:
-                Rtn = Rtn << 1
+                Rtn = (Rtn << 1)&0xff
     return Rtn
+def get_definition(ASignalAddress:bytes):
+    ASignalDef=TFlexRaySignal()
+    ret = tscom_flexray_get_signal_definition(ASignalAddress,ASignalDef)
+    if ret == 0:
+        return ASignalDef
+    return None
+class USGMode(IntEnum):
+    UsgModAbdnd=0
+    UsgModInActv=1
+    UsgModCnvinc=2
+    UsgModActv=11
+    UsgModDrvg=13
 
 class TOSUN():
     def __init__(self,APPName:c_char_p) -> None:
@@ -20,15 +32,23 @@ class TOSUN():
         tsapp_set_flexray_channel_count(2)
         tsapp_set_mapping_verbose(self.APPName,TLIBApplicationChannelType.APP_FlexRay,CHANNEL_INDEX.CHN1,b"TC1034",TLIBBusToolDeviceType.TS_USB_DEVICE,TLIB_TS_Device_Sub_Type.TC1034,0,CHANNEL_INDEX.CHN1,True)
         tsapp_set_mapping_verbose(self.APPName,TLIBApplicationChannelType.APP_FlexRay,CHANNEL_INDEX.CHN2,b"TC1034",TLIBBusToolDeviceType.TS_USB_DEVICE,TLIB_TS_Device_Sub_Type.TC1034,0,CHANNEL_INDEX.CHN2,True)
+        self.onrxtxevnet = OnTx_RxFUNC_Flexray(self.on_tx_rx)
+        self.onpretxevnet = OnTx_RxFUNC_Flexray(self.on_pre_tx)
+        self.MsgList = []
+        self.obj = s32(0)
     def __unloadDBS(self):
         tsdb_unload_flexray_dbs()
     def __loadDB(self,dbpath:str):
         self.AdbID = s32(0)
         self.dbinfo = Fibex_parse(dbpath)
         tsdb_load_flexray_db(dbpath.encode("utf8"),b"0,1",self.AdbID)
+        self.FrameList = get_db_frame_info(MSGType.FlexrayMSG,0)
+        self.get_signals_definition()
     def connect(self,dbpath:str):
         self.__unloadDBS()
         self.__loadDB(dbpath)
+        tsapp_register_event_flexray(self.obj ,self.onrxtxevnet)
+        tsapp_register_pretx_event_flexray(self.obj ,self.onpretxevnet)
         tsapp_connect()
         FlexrayConfig = TLibFlexray_controller_config().set_controller_config(self.dbinfo.Ecus['VDDM'],is_open_a=True, is_open_b=False, enable100_b=True, is_show_nullframe=False,is_Bridging=True)
         self.CHN0Frames = []
@@ -77,16 +97,16 @@ class TOSUN():
             else:
                 fr_trigger1[idx].config_byte = 0X01
         tsflexray_set_controller_frametrigger(1, FlexrayConfig1, FrameLengthArray1, fr_trigger_len1, fr_trigger1, fr_trigger_len1, 1000)
-        # tscom_flexray_rbs_activate_cluster_by_name(0,True,b'BackboneFR',False)
-        # tscom_flexray_rbs_activate_ecu_by_name(0,True,b"BackboneFR",b"VDDM",True)
-        # tscom_flexray_rbs_activate_ecu_by_name(0,True,b"BackboneFR",b"CEM",True)
+        tscom_flexray_rbs_activate_cluster_by_name(0,True,b'BackboneFR',False)
+        tscom_flexray_rbs_activate_ecu_by_name(0,True,b"BackboneFR",b"VDDM",True)
+        tscom_flexray_rbs_activate_ecu_by_name(0,True,b"BackboneFR",b"CEM",True)
 
-        # tscom_flexray_rbs_activate_cluster_by_name(1,True,b'BackboneFR',False)
-        # tscom_flexray_rbs_activate_ecu_by_name(1,True,b"BackboneFR",b"VGM",True)
+        tscom_flexray_rbs_activate_cluster_by_name(1,True,b'BackboneFR',False)
+        tscom_flexray_rbs_activate_ecu_by_name(1,True,b"BackboneFR",b"VGM",True)
 
-        # tscom_flexray_rbs_configure(False,True,True,2)
-        # tscom_flexray_rbs_enable(True)
-        # tscom_flexray_rbs_start()
+        tscom_flexray_rbs_configure(False,True,True,2)
+        tscom_flexray_rbs_enable(True)
+        tscom_flexray_rbs_start()
         self.start()
         self.__send_initMsg()
     def __send_initMsg(self):
@@ -94,6 +114,139 @@ class TOSUN():
         tsapp_transmit_flexray_async(AFlexray)
         AFlexray1 = TLIBFlexray(0,8,1,32,4,[0XC0,0X53,0Xff,0XFF,0Xb7,0x02])
         tsapp_transmit_flexray_async(AFlexray1)
+        tscom_flexray_rbs_set_signal_value_by_address(b"0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1UsgModSts",USGMode.UsgModCnvinc)
+
+        tscom_flexray_rbs_batch_set_start()
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorDrvrLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorDrvrLockSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorPassLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorPassLockSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorLeReLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorLeReLockSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorRiReLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorRiReLockSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorDrvrSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorDrvrSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorPassSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorPassSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorLeReSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorLeReSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorRiReSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/DoorRiReSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtDrvr",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtDrvr_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtPass",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtPass_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtReLe",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtReLe_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtReRi",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/WinPosnStsAtReRi_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr05/MirrFoldStsAtDrvr",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr05/MirrFoldStsAtDrvr_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr05/MirrFoldStsAtPass",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr05/MirrFoldStsAtPass_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorDrvrPosn",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorDrvrPosn_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorPassPosn",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorPassPosn_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorLeRePosn",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorLeRePosn_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorRiRePosn",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorRiRePosn_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerDrvrSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerDrvrSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerPassSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerPassSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerLeReSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerLeReSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerRiReSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr10/DoorOpenerRiReSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr06/HoodSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr06/HoodSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr06/LockgCenStsLockSt",3)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr06/LockgCenSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr08/TankFlapSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr08/TankFlapSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr08/TrLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr08/TrLockSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr25/TrSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr25/TrSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr12/TrOpenerSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr12/TrOpenerSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr04/VehSpdLgtTar",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr04/VehSpdLgtTar_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtA",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtQf",3)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgt_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr18/TrsmParkLockdTrsmParkLockd",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr18/TrsmParkLockd_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr19/TrsmLockSts",2)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr19/TrsmLockSts_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr03/GearLvrIndcn",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr03/GearLvrIndcn_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr39/GearLock",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr39/GearLock_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr15/SteerLockSts_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr15/SteerLockChkSts",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr15/SteerLockChk_UB",1)
+        
+
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr06/DispHvBattLvlOfChrg",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr06/DispHvBattLvlOfChrg_UB",1)
+
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr03/EscStEscSt",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr03/EscSt_UB",1)
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr39/DrvModEscOffDrvModEscOff",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr39/DrvModEscOff_UB",1)
+        
+        
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr08/EscWarnIndcnReqEscWarnIndcnReq",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr08/EscWarnIndcnReqEscWarnIndcnReq",1)
+        
+
+        tscom_flexray_rbs_batch_set_end()
+
     def disconnect(self):
         tscom_flexray_rbs_enable(False)
         tscom_flexray_rbs_stop()
@@ -107,17 +260,162 @@ class TOSUN():
             tsflexray_stop_net(i, 1000)
     def finally_exit(self):
         finalize_lib_tsmaster()
+    
+    def get_signals_definition(self):
+        CemBackBoneFr02 = { }
+        CemBackBoneFr02['Msginfo'] = [36,0,1]
+        CemBackBoneFr02['dataId'] = 116
+        CemBackBoneFr02['data'] = []
+        CemBackBoneFr02['signals'] = []
+        CemBackBoneFr02['signals'].append({"Name":get_definition(b'0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1Cntr'),"value":0})
+        CemBackBoneFr02['signals'].append({"Name":get_definition(b'0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1CarModSts1'),"value":0})
+        for i in range(6):
+            CemBackBoneFr02['signals'].append({"Name":None,"value":0.0})
+        CemBackBoneFr02['signals'].append({"Name":get_definition(b'0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1UsgModSts'),"value":0})
+        CemBackBoneFr02['signals'].append({"Name":get_definition(b'0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1Chks'),"value":0})
+        CemBackBoneFr02['signals'].append({"Name":get_definition(b'0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1_UB'),"value":1})
+        self.MsgList.append(CemBackBoneFr02)
+
+        BcmVddmBackBoneFr06 = {}
+        BcmVddmBackBoneFr06['Msginfo'] = [57,0,4]
+        BcmVddmBackBoneFr06['dataId'] = 55
+        BcmVddmBackBoneFr06['data'] = []
+        BcmVddmBackBoneFr06['signals'] = []
+        BcmVddmBackBoneFr06['signals'].append({"Name":get_definition(b'0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtCntr'),"value":0})
+        BcmVddmBackBoneFr06['signals'].append({"Name":get_definition(b'0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtA'),"value":0})
+        BcmVddmBackBoneFr06['signals'].append({"Name":get_definition(b'0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtQf'),"value":0})
+        BcmVddmBackBoneFr06['signals'].append({"Name":get_definition(b'0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtChks'),"value":0})
+        BcmVddmBackBoneFr06['signals'].append({"Name":get_definition(b'0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgt_UB'),"value":1})
+        self.MsgList.append(BcmVddmBackBoneFr06)
+
+
+    def on_tx_rx(self,obj,AFlexRay):
+        if AFlexRay.contents.FDir == 1:
+            for index in range(len(self.MsgList)):
+                if(AFlexRay.contents.FSlotId == self.MsgList[index]['Msginfo'][0] and AFlexRay.contents.FCycleNumber % self.MsgList[index]['Msginfo'][2] == self.MsgList[index]['Msginfo'][1]):
+                    self.MsgList[index]['signals'][0]['value'] += 1
+                    if self.MsgList[index]['signals'][0]['value']>14:
+                        self.MsgList[index]['signals'][0]['value'] = 0
+                    flexray_rbs_update_frame_by_header(AFlexRay)
+                    return
+    def on_pre_tx(self,obj,AFlexRay):
+        for index in range(len(self.MsgList)):
+            if(AFlexRay.contents.FSlotId == self.MsgList[index]['Msginfo'][0] and AFlexRay.contents.FCycleNumber % self.MsgList[index]['Msginfo'][2] == self.MsgList[index]['Msginfo'][1]):
+                self.MsgList[index]['data'].append(int(self.MsgList[index]['signals'][0]['value'])) 
+                tscom_set_flexray_signal_value(self.MsgList[index]['signals'][0]['Name'],AFlexRay.contents.FData,self.MsgList[index]['data'][0])
+                for singalindex in range(1,len(self.MsgList[index]['signals'])-2):
+                    if self.MsgList[index]['signals'][singalindex]['Name']!= None:
+                        self.MsgList[index]['signals'][singalindex]['value']= int(get_flexray_signal_raw_value(self.MsgList[index]['signals'][singalindex]['Name'],AFlexRay.contents.FData))
+                        singal_len =  int(self.MsgList[index]['signals'][singalindex]['Name'].FLength/8) + 1
+                        value = int(self.MsgList[index]['signals'][singalindex]['value'])
+                        for LCount_idx in range(singal_len):
+                            self.MsgList[index]['data'].append((value>>(8*LCount_idx)) & 0xff)
+                    else:
+                        self.MsgList[index]['data'].append(int(self.MsgList[index]['signals'][singalindex]['value']))
+                tscom_set_flexray_signal_value(self.MsgList[index]['signals'][-2]['Name'],AFlexRay.contents.FData,crc8(self.MsgList[index]['data'],self.MsgList[index]['dataId']))
+                tscom_set_flexray_signal_value(self.MsgList[index]['signals'][-1]['Name'],AFlexRay.contents.FData,self.MsgList[index]['signals'][-1]['value'])
+                self.MsgList[index]['data'].clear()
+                return
+    def set_usgMode(self,usgmode:USGMode):
+        tscom_flexray_rbs_set_signal_value_by_address(b"0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1UsgModSts",usgmode)
+    def set_speed(self,speed = 10):
+        tscom_flexray_rbs_batch_set_start()
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr04/VehSpdLgtTar",speed)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr04/VehSpdLgtTar_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtA",speed)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/BcmVddmBackBoneFr06/VehSpdLgtQf",3)
+        tscom_flexray_rbs_batch_set_end()
+    def set_gear(self,gear = 1):
+        tscom_flexray_rbs_batch_set_start()
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr03/GearLvrIndcn",gear)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr03/GearLvrIndcn_UB",1)
+        tscom_flexray_rbs_batch_set_end()
+    def set_acc_and_lcc(self,indicator=3):
+        tscom_flexray_rbs_batch_set_start()
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/ASDM/AsdmBackBoneFr11/AsyALgtIndcr",indicator)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/ASDM/AsdmBackBoneFr11/AsyALgtIndcr_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/ASDM/AsdmBackBoneFr11/AsyALatIndcr",indicator)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/ASDM/AsdmBackBoneFr11/AsyALatIndcr_UB",1)
+        tscom_flexray_rbs_batch_set_end()
+
+    def in_STR_mode(self):
+        print("start..sleep...")
+        tscom_flexray_rbs_batch_set_start()
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/AmbTRaw_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr03/AmbTRawAmbTVal",20)
+
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1CarModSts1",0)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1EgyLvlElecMai",0)
+
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr06/DispHvBattLvlOfChrg_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr06/DispHvBattLvlOfChrg",25)
+
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr10/DrvPfmncRedn_UB",1)
+        tscom_flexray_rbs_batch_set_signal(b"0/BackboneFR/VDDM/VddmBackBoneFr10/DrvPfmncRedn",0)  
+        tscom_flexray_rbs_batch_set_end()
+        tosun.set_usgMode(USGMode.UsgModCnvinc)
+        time.sleep(2)
+        self.set_usgMode(USGMode.UsgModInActv)
+        time.sleep(2)
+        tosun.set_usgMode(USGMode.UsgModAbdnd)
+        time.sleep(2)
+        self.stop()  # 心跳包 3 秒后停止
+        time.sleep(60)  # current = 0.044A
+        print("done..sleep...")
+    def out_STR_mode(self):
+        print("start..wakeup...")
+        self.start()
+        tosun.set_usgMode(USGMode.UsgModAbdnd)
+        time.sleep(2)
+        self.set_usgMode(USGMode.UsgModInActv)
+        time.sleep(2)
+        tosun.set_usgMode(USGMode.UsgModCnvinc)
+        time.sleep(2)
+        print("done..wakeup...")
+
 if __name__ == '__main__':
 
-    # tosun = TOSUN(b"TSMasterFlexray")
+    tosun = TOSUN(b"TSMasterFlexray")
 
-    # tosun.connect(r'D:\IDE\libTSCANApi\DataBases\SDB21206_HX11_Low_BackboneFR_220513.xml')
+    tosun.connect(r'D:\IDE\libTSCANApi\DataBases\SDB21206_HX11_Low_BackboneFR_220513.xml')
 
-    # time.sleep(10)
+    tosun.set_usgMode(USGMode.UsgModCnvinc)
 
-    # tosun.disconnect()
+    time.sleep(60)
 
-    # tosun.finally_exit()
-    a = [1,2,4]
-    b = [0,5]
-    print(b+a)
+    tosun.set_speed()
+
+    tosun.set_gear()
+
+    tosun.set_acc_and_lcc()
+
+    tosun.set_usgMode(USGMode.UsgModDrvg)
+
+    tosun.set_usgMode(USGMode.UsgModCnvinc)
+
+    tosun.set_usgMode(USGMode.UsgModAbdnd)
+    
+    tosun.set_usgMode(USGMode.UsgModDrvg)
+
+    tosun.set_usgMode(USGMode.UsgModCnvinc)
+
+    time.sleep(10)
+
+    i=1
+    print(f"开始执行时间为{time.time()}")
+    for i in range(2000):
+        time1=time.time()
+        try:
+            tosun.in_STR_mode()  # 进入STR模式
+            time.sleep(10)
+            tosun.out_STR_mode()  # 退出STR模式
+            time.sleep(10)
+        except Exception as e:
+            print(f"exception: {e}")
+        time2 = time.time()
+        time3=time2-time1
+        print(f'该轮次执行时长为{time3}')
+        print(f'当前执行了{i}轮')
+    print(f'实际共执行了{i}轮')
+    tosun.disconnect()
+    tosun.finally_exit()

@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-07-06 20:37:12
+LastEditTime: 2023-07-07 12:22:46
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -22,7 +22,7 @@ tsapp_get_error_description.restype  = TS_ReturnType
 
 def check_status_operation(result, function, arguments):
     """Check the status and raise """
-    if result != 0:
+    if result == 97:
         ret = c_char_p()
         tsapp_get_error_description(result, ret)
         print("TSDriverOperationError: " + str(function.__name__) + "(" + str(arguments) + ") returned " + str(result) + ": " + str(ret.value))
@@ -976,6 +976,17 @@ tsdb_get_flexray_db_signal_properties_by_frame_index = dll.tsdb_get_flexray_db_s
 tsdb_get_flexray_db_signal_properties_by_frame_index.argtypes = [s32,s32,s32,PDBSignalProperties]  
 tsdb_get_flexray_db_signal_properties_by_frame_index.restype = TS_ReturnType
 tsdb_get_flexray_db_signal_properties_by_frame_index.errcheck = check_status_operation
+
+
+tscom_flexray_get_signal_definition = dll.tscom_flexray_get_signal_definition
+tscom_flexray_get_signal_definition.argtypes = [c_char_p,PFlexRaySignal]  
+tscom_flexray_get_signal_definition.restype = TS_ReturnType
+tscom_flexray_get_signal_definition.errcheck = check_status_operation
+
+flexray_rbs_update_frame_by_header = dll.flexray_rbs_update_frame_by_header
+flexray_rbs_update_frame_by_header.argtypes = [PFlexray]  
+flexray_rbs_update_frame_by_header.restype = TS_ReturnType
+
 
 # 获取报文中信号值
 tscom_get_flexray_signal_value = dll.tscom_get_flexray_signal_value #函数对象

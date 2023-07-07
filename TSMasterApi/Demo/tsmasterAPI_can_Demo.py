@@ -200,7 +200,7 @@ def read_blf():
     root.withdraw()
     filepath = filedialog.askopenfilename()
     if str(filepath).find(".blf"):
-        r = tslog_blf_read_start(filepath, blfID, count)
+        r = tslog_blf_read_start(filepath.encode("utf8"), blfID, count)
     if r == 0:
         print(filepath[filepath.rindex("/") + 1:] + "文件加载成功")
 
