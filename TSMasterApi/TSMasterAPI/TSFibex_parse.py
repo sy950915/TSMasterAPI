@@ -1,16 +1,14 @@
-
 import xml.etree.ElementTree as ET
-
 class Fibex_parse():
-    Cluster = {}
-    Frames = {}
-    Pdus = {}
-    Triggers = {}
-    Signals = {}
-    Codings = {}
-    Ecus = {}
-    STATIC_SLOT = 30
     def __init__(self,xmlpath) -> ET:
+        self.Cluster = {}
+        self.Frames = {}
+        self.Pdus = {}
+        self.Triggers = {}
+        self.Signals = {}
+        self.Codings = {}
+        self.Ecus = {}
+        self.STATIC_SLOT = 30
         self.tree = ET.parse(xmlpath)
         self.parse(self.tree)
     def parse(self,tree):
@@ -35,6 +33,7 @@ class Fibex_parse():
             CLUSTER = ELEMENTS.find('{http://www.asam.net/xml/fbx}CLUSTERS/{http://www.asam.net/xml/fbx}CLUSTER')
             if CLUSTER != None:
                 self.STATIC_SLOT = int(CLUSTER.find('{http://www.asam.net/xml/fbx/flexray}STATIC-SLOT').text)
+                self.Cluster['Name'] = CLUSTER.find('{http://www.asam.net/xml}SHORT-NAME').text
                 self.Cluster['NETWORK_MANAGEMENT_VECTOR_LENGTH'] = int(CLUSTER.find('{http://www.asam.net/xml/fbx/flexray}NETWORK-MANAGEMENT-VECTOR-LENGTH').text)
                 self.Cluster['PAYLOAD_LENGTH_STATIC'] = int(CLUSTER.find('{http://www.asam.net/xml/fbx/flexray}PAYLOAD-LENGTH-STATIC').text)
                 self.Cluster['T_S_S_TRANSMITTER'] = int(CLUSTER.find('{http://www.asam.net/xml/fbx/flexray}T-S-S-TRANSMITTER').text)
@@ -121,7 +120,18 @@ class Fibex_parse():
                         self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['factor'] = self.Signals[SIGNAL_REF]['factor']
                         self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['ENCODING'] = self.Signals[SIGNAL_REF]['ENCODING']
                         self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['is_M'] = SIGNAL_INSTANCE.find('{http://www.asam.net/xml/fbx}IS-HIGH-LOW-BYTE-ORDER').text
-                        self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['ub'] = SIGNAL_INSTANCE.find('{http://www.asam.net/xml/fbx}SIGNAL-UPDATE-BIT-POSITION').text if SIGNAL_INSTANCE.find('{http://www.asam.net/xml/fbx}SIGNAL-UPDATE-BIT-POSITION') != None else '-1'
+                        self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['ub'] = int(SIGNAL_INSTANCE.find('{http://www.asam.net/xml/fbx}SIGNAL-UPDATE-BIT-POSITION').text) if SIGNAL_INSTANCE.find('{http://www.asam.net/xml/fbx}SIGNAL-UPDATE-BIT-POSITION') != None else -1
+                        if self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['ub'] != -1:
+                            ub_name = _Signal_Name+"_ub"
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name] = {}
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['SHORT-NAME'] = ub_name
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['BIT-POSITION'] = self.Pdus[pdu_id]['SIGNALS'][_Signal_Name]['ub']
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['BIT-LENGTH'] = 1
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['offset'] = 0
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['factor'] = 1
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['ENCODING'] = self.Signals[SIGNAL_REF]['ENCODING']
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['is_M'] = True
+                            self.Pdus[pdu_id]['SIGNALS'][ub_name]['ub'] = '-1'
                         del _Signal_Name,SIGNAL_REF
                 del pdu_id
             FRAMES = ELEMENTS.findall('{http://www.asam.net/xml/fbx}FRAMES/{http://www.asam.net/xml/fbx}FRAME')
@@ -139,7 +149,9 @@ class Fibex_parse():
                     _FDLC = int(FRAME.find('{http://www.asam.net/xml/fbx}BYTE-LENGTH').text)
                     self.Frames[FRAME_NAME]['FDLC'] = _FDLC
                     self.Triggers[FRAME_ID]['FDLC'] = _FDLC
+                    self.Triggers[FRAME_ID]['Name'] = FRAME_NAME
                     self.Triggers[self.Triggers[FRAME_ID]['TRIGGERING_ID']]['FDLC'] = _FDLC
+                    self.Triggers[self.Triggers[FRAME_ID]['TRIGGERING_ID']]['Name'] = FRAME_NAME
                     PDU_INSTANCES = FRAME.findall('{http://www.asam.net/xml/fbx}PDU-INSTANCES/{http://www.asam.net/xml/fbx}PDU-INSTANCE')
                     if len(PDU_INSTANCES) != 0:
                         self.Frames[FRAME_NAME]['PDUS'] = []
@@ -155,7 +167,10 @@ class Fibex_parse():
                             # self.Frames[FRAME_NAME][self.Pdus[PDU_REF]['PDU_Name']]['SIGNALS'] = self.Pdus[PDU_REF]['SIGNALS']
                             del PDU_REF,PDU_1
                     else:
-                        self.Frames[FRAME_NAME]['SIGNALS'] = self.Pdus[FRAME_ID]['SIGNALS']
+                        try:
+                            self.Frames[FRAME_NAME]['SIGNALS'] = self.Pdus[FRAME_ID]['SIGNALS']
+                        except:
+                            pass
                     del FRAME_NAME,FRAME_ID,_FDLC
             ECUS = ELEMENTS.findall('{http://www.asam.net/xml/fbx}ECUS/{http://www.asam.net/xml/fbx}ECU')
             if ECUS != None:  
@@ -228,6 +243,7 @@ class Fibex_parse():
                         _rx_frame['BASE-CYCLE'] = self.Triggers[Trgger_ID]['BASE-CYCLE']
                         _rx_frame['CYCLE-REPETITION'] = self.Triggers[Trgger_ID]['CYCLE-REPETITION']
                         _rx_frame['FDLC'] = self.Triggers[Trgger_ID]['FDLC']
+                        _rx_frame['Name'] = self.Triggers[Trgger_ID]['Name']
                         self.Ecus[ecu_name]['RX_Frame'].append(_rx_frame)
                         del Trgger_ID,_rx_frame
                     for OUTPUT_PORT in OUTPUT_PORTS:
@@ -237,6 +253,7 @@ class Fibex_parse():
                         _tx_frame['BASE-CYCLE'] = self.Triggers[Trgger_ID]['BASE-CYCLE']
                         _tx_frame['CYCLE-REPETITION'] = self.Triggers[Trgger_ID]['CYCLE-REPETITION']
                         _tx_frame['FDLC'] = self.Triggers[Trgger_ID]['FDLC']
+                        _tx_frame['Name'] = self.Triggers[Trgger_ID]['Name']
                         if self.Ecus[ecu_name]['startupFrame_ID'] == _tx_frame['SLOT-ID'] and len(self.Ecus[ecu_name]['TX_Frame'])!=0  :
                             self.Ecus[ecu_name]['TX_Frame'].append(self.Ecus[ecu_name]['TX_Frame'][0])
                             self.Ecus[ecu_name]['TX_Frame'][0] = _tx_frame
@@ -244,4 +261,3 @@ class Fibex_parse():
                             self.Ecus[ecu_name]['TX_Frame'].append(_tx_frame)
                         del Trgger_ID,_tx_frame
                     del ecu_name
- 

@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 10:21:17
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-05-17 14:26:06
+LastEditTime: 2023-07-06 20:32:20
 '''
 from ctypes import Structure,c_char,c_int32,c_bool,c_uint8,c_int64,c_uint64,c_uint32,c_uint16,c_double,c_char_p,byref,string_at,string_at,CDLL,CFUNCTYPE,POINTER,pointer,c_void_p,c_float,c_int16,c_int8,WINFUNCTYPE
 
@@ -558,6 +558,7 @@ class TDBProperties(Structure):
                 ("FSupportedChannelMask", c_uint64),
                 ("FName", c_char * DATABASE_STR_LEN),
                 ("FComment", c_char * DATABASE_STR_LEN),
+                ("FFlags", u64),
                 ]
 PDBProperties = POINTER(TDBProperties)
 class TDBECUProperties(Structure):
@@ -634,6 +635,99 @@ class TDBSignalProperties(Structure):
                 ] 
 
 PDBSignalProperties = POINTER(TDBSignalProperties) 
+
+GENERIC_STRING_MAX_LENGTH = 32
+class TFlexRayClusterParameters(Structure):
+    '''
+    DataBase Signal properties 描述数据库中 signal详细信息
+    '''
+    _pack_ = 1
+    _fields_ = [("FShortName", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FLongName", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FDescription", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FSpeed", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FChannels", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FBitCountingPolicy", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FProtocol", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FProtocolVersion", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FMedium",  c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FIsHighLowBitOrder", s32),
+                ("FMaxFrameLengthByte", s32),
+                ("FNumberOfCycles", s32),
+                ("FCycle_us", s32),
+                ("FBit_us", double),
+                ("FSampleClockPeriod_us", double),
+                ("FMacrotick_us", double),
+
+                ("FMacroPerCycle", s32),
+                ("FNumberOfStaticSlots", s32),
+                ("FStaticSlot_MT", s32),
+                ("FActionPointOffset_MT", s32),
+                ("FPayloadLengthStatic_WORD", s32),
+                ("FNumberOfMiniSlots", s32),
+                ("FMiniSlot_MT", s32),
+                ("FMiniSlotActionPointOffset_MT", s32),
+                ("FDynamicSlotIdlePhase_MiniSlots", s32),
+                ("FSymbolWindow_MT", s32),
+                ("FNIT_MT", s32),
+                ("FSyncNodeMax", s32),
+                ("FNetworkManagementVectorLength", s32),
+                ("FListenNoise", s32),
+                ("FColdStartAttempts", s32),
+                ("FCASRxLowMax_gdBit", s32),
+                ("FWakeupSymbolRxIdle_gdBit", s32),
+                ("FWakeupSymbolRxLow_gdBit", s32),
+                ("FWakeupSymbolRxWindow_gdBit", s32),
+                ("FWakeupSymbolTxIdle_gdBit", s32),
+                ("FWakeupSymbolTxLow_gdBit", s32),
+                ("FMaxInitializationError_us", double),
+                ("FClusterDriftDamping_uT", s32),
+                ("FOffsetCorrectionStart_MT", s32),
+                ("FMaxWithoutClockCorrectionFatal", s32),
+                ("FMaxWithoutClockCorrectionPassive", s32),
+                ] 
+PFlexRayClusterParameters = POINTER(TFlexRayClusterParameters)
+
+
+class TFlexRayControllerParameters(Structure):
+    '''
+    DataBase Signal properties 描述数据库中 signal详细信息
+    '''
+    _pack_ = 1
+    _fields_ = [("FShortName", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FConnectedChannels", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FMicroPerCycle_uT", s32),
+                ("FMicroPerMacroNom_uT", s32),
+                ("FMicroTick_us", double),
+                ("FSamplesPerMicrotick", s32),
+                ("FWakeupChannelA", s32),
+                ("FWakeupChannelB", s32),
+                ("FMaxDrift_uT", s32),
+                ("FWakeupPattern", s32),
+                ("FListenTimeout_uT", s32),
+                ("FAcceptedStartupRange_uT", s32),
+                ("FMacroInitialOffsetA_MT", s32),
+                ("FMacroInitialOffsetB_MT", s32),
+                ("FMicroInitialOffsetA_uT", s32),
+                ("FMicroInitialOffsetB_uT", s32),
+                ("FKeySlotUsage", c_char * GENERIC_STRING_MAX_LENGTH),
+                ("FKeySlotID", s32),
+                ("FSingleSlotEnabled", s32),
+                ("FClusterDriftDamping_uT", s32),
+                ("FDocodingCorrection_uT", s32),
+                ("FDelayCompensationA_uT", s32),
+                ("FDelayCompensationB_uT", s32),
+                ("FOffsetCorrectionOut_uT", s32),
+                ("FExternRateCorrection_uT", s32),
+                ("FRateCorrectionOut_uT", s32),
+                ("FExternOffsetCorrection_uT", s32),
+                ("FAllowHaltDueToClock", s32),
+                ("FAllowPassivToActive", s32),
+                ("FLatestTx", s32),
+                ("FMaxDynamicPayloadLength", s32),
+                ] 
+
+PFlexRayControllerParameters = POINTER(TFlexRayControllerParameters) 
 
 #回调函数
 
