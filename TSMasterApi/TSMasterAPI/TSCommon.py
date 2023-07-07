@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-07-07 12:22:46
+LastEditTime: 2023-07-07 22:16:58
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -992,6 +992,11 @@ flexray_rbs_update_frame_by_header.restype = TS_ReturnType
 tscom_get_flexray_signal_value = dll.tscom_get_flexray_signal_value #函数对象
 tscom_get_flexray_signal_value.argtypes = [PFlexRaySignal,pu8] #指定参数类型
 tscom_get_flexray_signal_value.restype = c_double 
+
+#获取报文原始值
+get_flexray_signal_raw_value = dll.get_flexray_signal_raw_value #函数对象
+get_flexray_signal_raw_value.argtypes = [PFlexRaySignal,pu8] #指定参数类型
+get_flexray_signal_raw_value.restype = s64 
 
 # 设置报文中的信号值
 tscom_set_flexray_signal_value = dll.tscom_set_flexray_signal_value #函数对象
