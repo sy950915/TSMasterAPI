@@ -9,7 +9,7 @@ from TSMasterAPI import *
 import time
 
 initialize_lib_tsmaster("TSMaster_demo".encode("utf8"))
-tsapp_set_can_channel_count(1)
+tsapp_set_can_channel_count(2)
 tsapp_set_lin_channel_count(0)
 # tosun其他硬件只需修改第6个参数，找到对应型号即可
 tsapp_set_mapping_verbose("TSMaster_demo".encode("utf8"), TLIBApplicationChannelType.APP_CAN,
@@ -17,6 +17,13 @@ tsapp_set_mapping_verbose("TSMaster_demo".encode("utf8"), TLIBApplicationChannel
                           "TC1016".encode("utf8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
                           TLIB_TS_Device_Sub_Type.TC1016,0, CHANNEL_INDEX.CHN1, True)
 tsapp_configure_baudrate_canfd(CHANNEL_INDEX.CHN1, 500, 2000, TLIBCANFDControllerType.lfdtISOCAN,
+                               TLIBCANFDControllerMode.lfdmNormal, True)
+
+tsapp_set_mapping_verbose("TSMaster_demo".encode("utf8"), TLIBApplicationChannelType.APP_CAN,
+                          CHANNEL_INDEX.CHN2,
+                          "TC1016".encode("utf8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
+                          TLIB_TS_Device_Sub_Type.TC1016,0, CHANNEL_INDEX.CHN2, True)
+tsapp_configure_baudrate_canfd(CHANNEL_INDEX.CHN2, 500, 2000, TLIBCANFDControllerType.lfdtISOCAN,
                                TLIBCANFDControllerMode.lfdmNormal, True)
 
 if 0 == tsapp_connect():
