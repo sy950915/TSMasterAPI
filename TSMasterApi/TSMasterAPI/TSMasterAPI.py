@@ -871,13 +871,13 @@ def tsapp_set_mapping(mapping: TLIBTSMapping):
     return r
 
 
-def tsapp_set_mapping_verbose(AppName: str, ALIBApplicationChannelType: TLIBApplicationChannelType, CHANNEL_INDEX: CHANNEL_INDEX,HW_name: str,BusToolDeviceType: c_int32, HW_Type: c_int32, AHardwareChannel: CHANNEL_INDEX,AEnableMapping: c_bool):
+def tsapp_set_mapping_verbose(AppName: str, ALIBApplicationChannelType: TLIBApplicationChannelType, CHANNEL_INDEX: CHANNEL_INDEX,HW_name: str,BusToolDeviceType: c_int32, HW_Type: c_int32,HW_IDX:c_int32 ,AHardwareChannel: CHANNEL_INDEX,AEnableMapping: c_bool):
     """
     tsapp_set_mapping_verbose(AppName, TLIBApplicationChannelType.APP_CAN, CHANNEL_INDEX.CHN1,
                                       "TC1016".encode("UTF8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
                                       TLIB_TS_Device_Sub_Type.TC1016, 0, True):
     """
-    r = dll.tsapp_set_mapping_verbose(AppName, ALIBApplicationChannelType, CHANNEL_INDEX, HW_name, BusToolDeviceType, HW_Type, 0, AHardwareChannel, AEnableMapping)
+    r = dll.tsapp_set_mapping_verbose(AppName, ALIBApplicationChannelType, CHANNEL_INDEX, HW_name, BusToolDeviceType, HW_Type, HW_IDX, AHardwareChannel, AEnableMapping)
     return r
 
 

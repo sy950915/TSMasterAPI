@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-08-11 13:11:09
+LastEditTime: 2023-09-12 10:03:36
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -344,7 +344,7 @@ tsdb_set_signal_value_canfd.errcheck = check_status_operation
 
 # 获取信号值
 tsdb_get_signal_value_canfd = dll.tsdb_get_signal_value_canfd
-tsdb_get_signal_value_canfd.argtypes = [PCAN,c_char_p,c_char_p,pdouble]  
+tsdb_get_signal_value_canfd.argtypes = [PCANFD,c_char_p,c_char_p,pdouble]  
 tsdb_get_signal_value_canfd.restype = TS_ReturnType
 tsdb_get_signal_value_canfd.errcheck = check_status_operation
 
@@ -1529,7 +1529,7 @@ tsdiag_lin_fault_memory_read.errcheck = check_status_operation
 
 
 if __name__ == '__main__': # for the module test purpose only
-    ret = initialize_lib_tsmaster(b"TSMaster")
+    ret = initialize_lib_tsmaster_with_project(b"TSMaster",b'D:\\software\\TOSUN\\TSMaster\\bin\\Configuration\\TOSUN\\TSMaster_CAN')
     a = c_char_p()
     tsapp_get_current_application(a)
     print(a.value) 
