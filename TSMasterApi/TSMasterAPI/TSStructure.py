@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 10:21:17
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-08-11 15:18:30
+LastEditTime: 2023-09-24 22:28:03
 '''
 from ctypes import Structure,c_char,c_int32,c_bool,c_uint8,c_int64,c_uint64,c_uint32,c_uint16,c_double,c_char_p,byref,string_at,string_at,CDLL,CFUNCTYPE,POINTER,pointer,c_void_p,c_float,c_int16,c_int8,WINFUNCTYPE
 from typing import Any
@@ -731,6 +731,28 @@ class TFlexRayControllerParameters(Structure):
                 ] 
 
 PFlexRayControllerParameters = POINTER(TFlexRayControllerParameters) 
+
+# ETH
+class TLIBEthernetHeader(Structure):
+    _pack_ = 1
+    _fields_ = [("FIdxChn", u8),
+                ("FIdxSwitch", u8),
+                ("FIdxPort", u8),
+                ("FConfig", u8),
+                ("FEthernetPayloadLength", u16),
+                ("FReserved", u16),
+                ("FTimeUs", u64),
+                ("FEthernetDataAddr", c_char_p),
+                ("FPadding", u32),
+                ] 
+PLIBEthernetHeader = POINTER(TLIBEthernetHeader)
+class TEthernetMAX(Structure):
+    _pack_ = 1
+    _fields_ = [("FHeader", TLIBEthernetHeader),
+                ("FBytes", u8*1612),
+                ] 
+PEthernetMAX = POINTER(TEthernetMAX)
+
 
 #回调函数
 

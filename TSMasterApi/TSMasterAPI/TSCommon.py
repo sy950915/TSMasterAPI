@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-09-24 10:22:47
+LastEditTime: 2023-09-24 22:33:43
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -1613,6 +1613,73 @@ tsdiag_lin_fault_memory_read = dll.tsdiag_lin_fault_memory_read
 tsdiag_lin_fault_memory_read.argtypes = [s32,u8,u8,s32]
 tsdiag_lin_fault_memory_read.restype = TS_ReturnType
 tsdiag_lin_fault_memory_read.errcheck = check_status_operation
+
+# Eth
+set_ethernet_channel_count = dll.set_ethernet_channel_count
+set_ethernet_channel_count.argtypes = [s32]
+set_ethernet_channel_count.restype = TS_ReturnType
+set_ethernet_channel_count.errcheck = check_status_operation
+
+get_ethernet_channel_count= dll.get_ethernet_channel_count
+get_ethernet_channel_count.argtypes = [ps32]
+get_ethernet_channel_count.restype = TS_ReturnType
+get_ethernet_channel_count.errcheck = check_status_operation
+
+transmit_ethernet_async = dll.transmit_ethernet_async
+transmit_ethernet_async.argtypes = [PLIBEthernetHeader]
+transmit_ethernet_async.restype = TS_ReturnType
+transmit_ethernet_async.errcheck = check_status_operation
+
+transmit_ethernet_sync = dll.transmit_ethernet_sync
+transmit_ethernet_sync.argtypes = [PLIBEthernetHeader,s32]
+transmit_ethernet_sync.restype = TS_ReturnType
+transmit_ethernet_sync.errcheck = check_status_operation
+
+inject_ethernet_frame = dll.inject_ethernet_frame
+inject_ethernet_frame.argtypes = [PLIBEthernetHeader]
+inject_ethernet_frame.restype = TS_ReturnType
+inject_ethernet_frame.errcheck = check_status_operation
+
+tslog_blf_write_ethernet = dll.tslog_blf_write_ethernet
+tslog_blf_write_ethernet.argtypes = [s32,PLIBEthernetHeader]
+tslog_blf_write_ethernet.restype = TS_ReturnType
+tslog_blf_write_ethernet.errcheck = check_status_operation
+
+transmit_ethernet_async_wo_pretx = dll.transmit_ethernet_async_wo_pretx
+transmit_ethernet_async_wo_pretx.argtypes = [PLIBEthernetHeader]
+transmit_ethernet_async_wo_pretx.restype = TS_ReturnType
+transmit_ethernet_async_wo_pretx.errcheck = check_status_operation
+
+eth_build_ipv4_udp_packet = dll.eth_build_ipv4_udp_packet
+eth_build_ipv4_udp_packet.argtypes = [PLIBEthernetHeader,pu8,pu8,u16,u16,pu8,s32,ps32,ps32]
+eth_build_ipv4_udp_packet.restype = TS_ReturnType
+eth_build_ipv4_udp_packet.errcheck = check_status_operation
+
+eth_is_udp_packet = dll.eth_is_udp_packet
+eth_is_udp_packet.argtypes = [PLIBEthernetHeader,u16,u16,u16,bool]
+eth_is_udp_packet.restype = TS_ReturnType
+eth_is_udp_packet.errcheck = check_status_operation
+
+eth_ip_calc_header_checksum = dll.eth_ip_calc_header_checksum
+eth_ip_calc_header_checksum.argtypes = [PLIBEthernetHeader,bool,u16]
+eth_ip_calc_header_checksum.restype = TS_ReturnType
+eth_ip_calc_header_checksum.errcheck = check_status_operation
+
+eth_udp_calc_checksum = dll.eth_udp_calc_checksum
+eth_udp_calc_checksum.argtypes = [PLIBEthernetHeader,pu8,u16,bool,pu16]
+eth_udp_calc_checksum.restype = TS_ReturnType
+eth_udp_calc_checksum.errcheck = check_status_operation
+
+eth_udp_calc_checksum_on_frame = dll.eth_udp_calc_checksum_on_frame
+eth_udp_calc_checksum_on_frame.argtypes = [PLIBEthernetHeader,bool,pu16]
+eth_udp_calc_checksum_on_frame.restype = TS_ReturnType
+eth_udp_calc_checksum_on_frame.errcheck = check_status_operation
+
+eth_log_ethernet_frame_data = dll.eth_log_ethernet_frame_data
+eth_log_ethernet_frame_data.argtypes = [PLIBEthernetHeader,bool]
+eth_log_ethernet_frame_data.restype = TS_ReturnType
+eth_log_ethernet_frame_data.errcheck = check_status_operation
+
 
 
 
