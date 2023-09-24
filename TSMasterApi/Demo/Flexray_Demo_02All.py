@@ -249,7 +249,7 @@ if __name__ == '__main__':
 
     tosun = TOSUN(b"TSMasterFlexray")
 
-    tosun.connect(r'D:\IDE\libTSCANApi\DataBases\SDB21206_HX11_Low_BackboneFR_220513.xml')
+    tosun.connect(r'C:\Users\yueto\Desktop\SDB21206_HX11_Low_BackboneFR_220513.xml')
 
     tosun.set_usgMode(USGMode.UsgModCnvinc)
 

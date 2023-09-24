@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-09-12 10:03:36
+LastEditTime: 2023-09-24 10:22:47
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -1085,6 +1085,94 @@ tscom_can_rbs_set_message_cycle_by_name = dll.tscom_can_rbs_set_message_cycle_by
 tscom_can_rbs_set_message_cycle_by_name.argtypes = [c_float,c_char_p,c_char_p,c_char_p]  
 tscom_can_rbs_set_message_cycle_by_name.restype = TS_ReturnType
 tscom_can_rbs_set_message_cycle_by_name.errcheck = check_status_operation
+
+# lin RBS
+
+# 开启rbs
+tscom_lin_rbs_start = dll.tscom_lin_rbs_start
+tscom_lin_rbs_start.argtypes = []  
+tscom_lin_rbs_start.restype = TS_ReturnType
+tscom_lin_rbs_start.errcheck = check_status_operation
+
+# 停止rbs
+tscom_lin_rbs_stop = dll.tscom_lin_rbs_stop
+tscom_lin_rbs_stop.argtypes = []  
+tscom_lin_rbs_stop.restype = TS_ReturnType
+tscom_lin_rbs_stop.errcheck = check_status_operation
+
+# rbs是否启动
+tscom_lin_rbs_is_running = dll.tscom_lin_rbs_is_running
+tscom_lin_rbs_is_running.argtypes = [POINTER(c_bool)]  
+tscom_lin_rbs_is_running.restype = TS_ReturnType
+tscom_lin_rbs_is_running.errcheck = check_status_operation
+
+# RBS 配置
+tscom_lin_rbs_configure = dll.tscom_lin_rbs_configure
+tscom_lin_rbs_configure.argtypes = [c_bool,c_bool,c_bool,s32]  
+tscom_lin_rbs_configure.restype = TS_ReturnType
+tscom_lin_rbs_configure.errcheck = check_status_operation
+
+# 通过 network name 激活 network 是否包括子节点
+tscom_lin_rbs_activate_network_by_name = dll.tscom_lin_rbs_activate_network_by_name
+tscom_lin_rbs_activate_network_by_name.argtypes = [s32,c_bool,c_char_p,c_bool]  
+tscom_lin_rbs_activate_network_by_name.restype = TS_ReturnType
+tscom_lin_rbs_activate_network_by_name.errcheck = check_status_operation
+
+# 通过 node name 激活 node  是否包括子节点
+tscom_lin_rbs_activate_node_by_name = dll.tscom_lin_rbs_activate_node_by_name
+tscom_lin_rbs_activate_node_by_name.argtypes = [s32,c_bool,c_char_p,c_char_p,c_bool]  
+tscom_lin_rbs_activate_node_by_name.restype = TS_ReturnType
+tscom_lin_rbs_activate_node_by_name.errcheck = check_status_operation
+
+# 通过 message name 激活 message 
+tscom_lin_rbs_activate_message_by_name = dll.tscom_lin_rbs_activate_message_by_name
+tscom_lin_rbs_activate_message_by_name.argtypes = [s32,c_bool,c_char_p,c_char_p,c_char_p]  
+tscom_lin_rbs_activate_message_by_name.restype = TS_ReturnType
+tscom_lin_rbs_activate_message_by_name.errcheck = check_status_operation
+
+# 激活所有network rbs
+tscom_lin_rbs_activate_all_networks = dll.tscom_lin_rbs_activate_all_networks
+tscom_lin_rbs_activate_all_networks.argtypes = [c_bool,c_bool]  
+tscom_lin_rbs_activate_all_networks.restype = TS_ReturnType
+tscom_lin_rbs_activate_all_networks.errcheck = check_status_operation
+
+# 通过信号地址获取信号值
+tscom_lin_rbs_get_signal_value_by_address = dll.tscom_lin_rbs_get_signal_value_by_address
+tscom_lin_rbs_get_signal_value_by_address.argtypes = [c_char_p,pdouble]  
+tscom_lin_rbs_get_signal_value_by_address.restype = TS_ReturnType
+tscom_lin_rbs_get_signal_value_by_address.errcheck = check_status_operation
+
+# 通过信号元素获取信号值
+tscom_lin_rbs_get_signal_value_by_element = dll.tscom_lin_rbs_get_signal_value_by_element
+tscom_lin_rbs_get_signal_value_by_element.argtypes = [s32,c_char_p,c_char_p,c_char_p,c_char_p,pdouble]  
+tscom_lin_rbs_get_signal_value_by_element.restype = TS_ReturnType
+tscom_lin_rbs_get_signal_value_by_element.errcheck = check_status_operation
+
+# 通过信号地址设置信号值
+tscom_lin_rbs_set_signal_value_by_address = dll.tscom_lin_rbs_set_signal_value_by_address
+tscom_lin_rbs_set_signal_value_by_address.argtypes = [c_char_p,double]  
+tscom_lin_rbs_set_signal_value_by_address.restype = TS_ReturnType
+tscom_lin_rbs_set_signal_value_by_address.errcheck = check_status_operation
+
+# 通过信号元素设置信号值
+tscom_lin_rbs_set_signal_value_by_element = dll.tscom_lin_rbs_set_signal_value_by_element
+tscom_lin_rbs_set_signal_value_by_element.argtypes = [s32,c_char_p,c_char_p,c_char_p,c_char_p,double]  
+tscom_lin_rbs_set_signal_value_by_element.restype = TS_ReturnType
+tscom_lin_rbs_set_signal_value_by_element.errcheck = check_status_operation
+
+# 重新加载设置
+tscom_lin_rbs_reload_settings = dll.tscom_lin_rbs_reload_settings
+tscom_lin_rbs_reload_settings.argtypes = []  
+tscom_lin_rbs_reload_settings.restype = TS_ReturnType
+tscom_lin_rbs_reload_settings.errcheck = check_status_operation
+
+# 设置lin报文延时时间
+tscom_lin_rbs_set_message_delay_time_by_name = dll.tscom_lin_rbs_set_message_delay_time_by_name
+tscom_lin_rbs_set_message_delay_time_by_name.argtypes = [s32,s32,c_char_p,c_char_p,c_char_p]  
+tscom_lin_rbs_set_message_delay_time_by_name.restype = TS_ReturnType
+tscom_lin_rbs_set_message_delay_time_by_name.errcheck = check_status_operation
+
+
 
 
 # flexray RBS
