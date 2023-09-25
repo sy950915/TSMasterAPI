@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-09-24 22:33:43
+LastEditTime: 2023-09-25 10:47:01
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -1656,27 +1656,27 @@ eth_build_ipv4_udp_packet.restype = TS_ReturnType
 eth_build_ipv4_udp_packet.errcheck = check_status_operation
 
 eth_is_udp_packet = dll.eth_is_udp_packet
-eth_is_udp_packet.argtypes = [PLIBEthernetHeader,u16,u16,u16,bool]
+eth_is_udp_packet.argtypes = [PLIBEthernetHeader,u16,u16,u16,c_bool]
 eth_is_udp_packet.restype = TS_ReturnType
 eth_is_udp_packet.errcheck = check_status_operation
 
 eth_ip_calc_header_checksum = dll.eth_ip_calc_header_checksum
-eth_ip_calc_header_checksum.argtypes = [PLIBEthernetHeader,bool,u16]
+eth_ip_calc_header_checksum.argtypes = [PLIBEthernetHeader,c_bool,u16]
 eth_ip_calc_header_checksum.restype = TS_ReturnType
 eth_ip_calc_header_checksum.errcheck = check_status_operation
 
 eth_udp_calc_checksum = dll.eth_udp_calc_checksum
-eth_udp_calc_checksum.argtypes = [PLIBEthernetHeader,pu8,u16,bool,pu16]
+eth_udp_calc_checksum.argtypes = [PLIBEthernetHeader,pu8,u16,c_bool,pu16]
 eth_udp_calc_checksum.restype = TS_ReturnType
 eth_udp_calc_checksum.errcheck = check_status_operation
 
 eth_udp_calc_checksum_on_frame = dll.eth_udp_calc_checksum_on_frame
-eth_udp_calc_checksum_on_frame.argtypes = [PLIBEthernetHeader,bool,pu16]
+eth_udp_calc_checksum_on_frame.argtypes = [PLIBEthernetHeader,c_bool,pu16]
 eth_udp_calc_checksum_on_frame.restype = TS_ReturnType
 eth_udp_calc_checksum_on_frame.errcheck = check_status_operation
 
 eth_log_ethernet_frame_data = dll.eth_log_ethernet_frame_data
-eth_log_ethernet_frame_data.argtypes = [PLIBEthernetHeader,bool]
+eth_log_ethernet_frame_data.argtypes = [PLIBEthernetHeader,c_bool]
 eth_log_ethernet_frame_data.restype = TS_ReturnType
 eth_log_ethernet_frame_data.errcheck = check_status_operation
 
