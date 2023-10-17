@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-23 09:16:58
+LastEditTime: 2023-10-17 14:11:13
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -993,7 +993,7 @@ def tsapp_configure_baudrate_lin(AIdxChn: CHANNEL_INDEX, ABaudrateKbps: int, LIN
 
 
 # 设置LIN模式
-def tslin_set_node_functiontype(AIdxChn: CHANNEL_INDEX, TLINNodeType: T_LIN_NODE_FUNCTION):
+def tslin_set_node_funtiontype(AIdxChn: CHANNEL_INDEX, TLINNodeType: T_LIN_NODE_FUNCTION):
     """
     tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,T_LIN_NODE_FUNCTION.T_MASTER_NODE) #主节点
     tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,T_LIN_NODE_FUNCTION.T_SLAVE_NODE)  #从节点
