@@ -159,11 +159,11 @@ tsapp_configure_baudrate_lin.restype = TS_ReturnType
 tsapp_configure_baudrate_lin.errcheck = check_status_operation
 
 # 设置LIN模式
-tslin_set_node_funtiontype = dll.tslin_set_node_funtiontype
+tslin_set_node_functiontype = dll.tslin_set_node_functiontype
 # (AIdxChn: CHANNEL_INDEX, TLINNodeType: T_LIN_NODE_FUNCTION)
-tslin_set_node_funtiontype.argtypes=[s32, s32]
-tslin_set_node_funtiontype.restype = TS_ReturnType
-tslin_set_node_funtiontype.errcheck = check_status_operation
+tslin_set_node_functiontype.argtypes=[s32, s32]
+tslin_set_node_functiontype.restype = TS_ReturnType
+tslin_set_node_functiontype.errcheck = check_status_operation
 
 # 获取在线硬件 参数必须为变量
 tsapp_enumerate_hw_devices = dll.tsapp_enumerate_hw_devices
