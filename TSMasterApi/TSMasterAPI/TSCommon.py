@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-09-25 10:47:01
+LastEditTime: 2023-10-20 09:06:45
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -854,6 +854,11 @@ tsapp_unregister_pretx_event_flexray.argtypes = [ps32,OnTx_RxFUNC_Flexray]
 tsapp_unregister_pretx_event_flexray.restype = TS_ReturnType
 tsapp_unregister_pretx_event_flexray.errcheck = check_status_operation
 
+tsapp_unregister_pretx_events_flexray = dll.tsapp_unregister_pretx_events_flexray
+tsapp_unregister_pretx_events_flexray.argtypes = [ps32]  
+tsapp_unregister_pretx_events_flexray.restype = TS_ReturnType
+tsapp_unregister_pretx_events_flexray.errcheck = check_status_operation
+
 # 注册rx_tx事件
 tsapp_register_event_flexray = dll.tsapp_register_event_flexray
 tsapp_register_event_flexray.argtypes = [ps32,OnTx_RxFUNC_Flexray]  
@@ -1614,26 +1619,78 @@ tsdiag_lin_fault_memory_read.argtypes = [s32,u8,u8,s32]
 tsdiag_lin_fault_memory_read.restype = TS_ReturnType
 tsdiag_lin_fault_memory_read.errcheck = check_status_operation
 
+# lin schedule function
+tslin_batch_set_schedule_start = dll.tslin_batch_set_schedule_start
+tslin_batch_set_schedule_start.argtypes = [s32]
+tslin_batch_set_schedule_start.restype = TS_ReturnType
+tslin_batch_set_schedule_start.errcheck = check_status_operation
+
+tslin_batch_set_schedule_end = dll.tslin_batch_set_schedule_end
+tslin_batch_set_schedule_end.argtypes = [s32]
+tslin_batch_set_schedule_end.restype = TS_ReturnType
+tslin_batch_set_schedule_end.errcheck = check_status_operation
+
+tslin_batch_add_schedule_frame = dll.tslin_batch_add_schedule_frame
+tslin_batch_add_schedule_frame.argtypes = [s32,PLIN,u8]
+tslin_batch_add_schedule_frame.restype = TS_ReturnType
+tslin_batch_add_schedule_frame.errcheck = check_status_operation
+
+tslin_clear_schedule_tables = dll.tslin_clear_schedule_tables
+tslin_clear_schedule_tables.argtypes = [s32]
+tslin_clear_schedule_tables.restype = TS_ReturnType
+tslin_clear_schedule_tables.errcheck = check_status_operation
+
+tslin_switch_runtime_schedule_table = dll.tslin_switch_runtime_schedule_table
+tslin_switch_runtime_schedule_table.argtypes = [s32]
+tslin_switch_runtime_schedule_table.restype = TS_ReturnType
+tslin_switch_runtime_schedule_table.errcheck = check_status_operation
+
+tslin_switch_idle_schedule_table = dll.tslin_switch_idle_schedule_table
+tslin_switch_idle_schedule_table.argtypes = [s32]
+tslin_switch_idle_schedule_table.restype = TS_ReturnType
+tslin_switch_idle_schedule_table.errcheck = check_status_operation
+
+tslin_switch_normal_schedule_table = dll.tslin_switch_normal_schedule_table
+tslin_switch_normal_schedule_table.argtypes = [s32,s32]
+tslin_switch_normal_schedule_table.restype = TS_ReturnType
+tslin_switch_normal_schedule_table.errcheck = check_status_operation
+
+tslin_start_lin_channel = dll.tslin_start_lin_channel
+tslin_start_lin_channel.argtypes = [s32]
+tslin_start_lin_channel.restype = TS_ReturnType
+tslin_start_lin_channel.errcheck = check_status_operation
+
+tslin_stop_lin_channel = dll.tslin_stop_lin_channel
+tslin_stop_lin_channel.argtypes = [s32]
+tslin_stop_lin_channel.restype = TS_ReturnType
+tslin_stop_lin_channel.errcheck = check_status_operation
+
 # Eth
-set_ethernet_channel_count = dll.set_ethernet_channel_count
-set_ethernet_channel_count.argtypes = [s32]
-set_ethernet_channel_count.restype = TS_ReturnType
-set_ethernet_channel_count.errcheck = check_status_operation
+# ETH Function
+tsapp_set_ethernet_channel_count = dll.tsapp_set_ethernet_channel_count
+tsapp_set_ethernet_channel_count.argtypes = [s32]
+tsapp_set_ethernet_channel_count.restype = TS_ReturnType
+tsapp_set_ethernet_channel_count.errcheck = check_status_operation
 
-get_ethernet_channel_count= dll.get_ethernet_channel_count
-get_ethernet_channel_count.argtypes = [ps32]
-get_ethernet_channel_count.restype = TS_ReturnType
-get_ethernet_channel_count.errcheck = check_status_operation
+tsapp_get_ethernet_channel_count= dll.tsapp_get_ethernet_channel_count
+tsapp_get_ethernet_channel_count.argtypes = [ps32]
+tsapp_get_ethernet_channel_count.restype = TS_ReturnType
+tsapp_get_ethernet_channel_count.errcheck = check_status_operation
 
-transmit_ethernet_async = dll.transmit_ethernet_async
-transmit_ethernet_async.argtypes = [PLIBEthernetHeader]
-transmit_ethernet_async.restype = TS_ReturnType
-transmit_ethernet_async.errcheck = check_status_operation
+tsapp_ethernet_channel_compress_mode= dll.tsapp_ethernet_channel_compress_mode
+tsapp_ethernet_channel_compress_mode.argtypes = [s32,c_bool]
+tsapp_ethernet_channel_compress_mode.restype = TS_ReturnType
+tsapp_ethernet_channel_compress_mode.errcheck = check_status_operation
 
-transmit_ethernet_sync = dll.transmit_ethernet_sync
-transmit_ethernet_sync.argtypes = [PLIBEthernetHeader,s32]
-transmit_ethernet_sync.restype = TS_ReturnType
-transmit_ethernet_sync.errcheck = check_status_operation
+tsapp_transmit_ethernet_async = dll.tsapp_transmit_ethernet_async
+tsapp_transmit_ethernet_async.argtypes = [PLIBEthernetHeader]
+tsapp_transmit_ethernet_async.restype = TS_ReturnType
+tsapp_transmit_ethernet_async.errcheck = check_status_operation
+
+tsapp_transmit_ethernet_sync = dll.tsapp_transmit_ethernet_sync
+tsapp_transmit_ethernet_sync.argtypes = [PLIBEthernetHeader,s32]
+tsapp_transmit_ethernet_sync.restype = TS_ReturnType
+tsapp_transmit_ethernet_sync.errcheck = check_status_operation
 
 inject_ethernet_frame = dll.inject_ethernet_frame
 inject_ethernet_frame.argtypes = [PLIBEthernetHeader]
@@ -1679,6 +1736,8 @@ eth_log_ethernet_frame_data = dll.eth_log_ethernet_frame_data
 eth_log_ethernet_frame_data.argtypes = [PLIBEthernetHeader,c_bool]
 eth_log_ethernet_frame_data.restype = TS_ReturnType
 eth_log_ethernet_frame_data.errcheck = check_status_operation
+
+
 
 
 
