@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-10-20 09:58:05
+LastEditTime: 2023-11-09 11:37:19
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -88,7 +88,7 @@ def tsapp_get_lin_channel_count(count: c_int32):
 
 
 # 按需创建通道映射
-def tsapp_set_mapping(mapping: dll.dll.TLIBTSMapping):
+def tsapp_set_mapping(mapping: dll.TLIBTSMapping):
     """
     Amapping = dll.TLIBTSMapping()
     Amapping.FAppName = APPName
@@ -2502,7 +2502,7 @@ def tscom_flexray_rbs_set_crc_signal(ASymbolAddress:bytes,AAlgorithmName:bytes,A
 
 #Flexray config 
 def tsflexray_set_controller_frametrigger(ANodeIndex: c_uint,
-                                        AControllerConfig: dll.dll.TLIBFlexray_controller_config,
+                                        AControllerConfig: dll.TLibFlexray_controller_config,
                                         AFrameLengthArray: bytearray,
                                         AFrameNum: c_int, AFrameTrigger: dll.TLibTrigger_def,AFrameTriggerNum: c_int,
                                         ATimeoutMs: c_int):
