@@ -361,13 +361,13 @@ def tsapp_get_error_description(ACode: c_int32):
     if ret != 0:
         tsapp_get_error_description(ret)
     """
-    errorcode = POINTER(POINTER(c_char))()
     if ACode == 0:
         return "确定"
     else:
-        r = dll.tsapp_get_error_description(c_int32(ACode), byref(errorcode))
+        ret = c_char_p()
+        r = dll.tsapp_get_error_description(c_int32(ACode), ret)
         if r == 0:
-            ADesc = string_at(errorcode).decode("utf-8")
+            ADesc = ret.value
             return ADesc
         else:
             return r
