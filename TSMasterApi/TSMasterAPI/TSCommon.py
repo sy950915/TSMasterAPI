@@ -1738,7 +1738,10 @@ eth_log_ethernet_frame_data.restype = TS_ReturnType
 eth_log_ethernet_frame_data.errcheck = check_status_operation
 
 
-
+set_flexray_ub_bit_auto_handle = dll.eth_log_ethernet_frame_data
+set_flexray_ub_bit_auto_handle.argtypes = [c_bool]
+set_flexray_ub_bit_auto_handle.restype = TS_ReturnType
+set_flexray_ub_bit_auto_handle.errcheck = check_status_operation
 
 
 

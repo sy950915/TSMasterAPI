@@ -3366,5 +3366,6 @@ def tsapp_transmit_ethernet_sync(AMsg:dll.PLIBEthernetHeader):
 def tslog_blf_write_ethernet(AMsg:dll.PLIBEthernetHeader):
     return dll.tslog_blf_write_ethernet(AMsg)
 
-
+def set_flexray_ub_bit_auto_handle(AISAuto:dll.c_bool):
+    return dll.set_flexray_ub_bit_auto_handle(AISAuto)
 
