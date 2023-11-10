@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-10-20 09:06:45
+LastEditTime: 2023-11-10 11:34:36
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -1738,7 +1738,7 @@ eth_log_ethernet_frame_data.restype = TS_ReturnType
 eth_log_ethernet_frame_data.errcheck = check_status_operation
 
 
-set_flexray_ub_bit_auto_handle = dll.eth_log_ethernet_frame_data
+set_flexray_ub_bit_auto_handle = dll.set_flexray_ub_bit_auto_handle
 set_flexray_ub_bit_auto_handle.argtypes = [c_bool]
 set_flexray_ub_bit_auto_handle.restype = TS_ReturnType
 set_flexray_ub_bit_auto_handle.errcheck = check_status_operation
