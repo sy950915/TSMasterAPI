@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-03-06 16:36:32
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-11-09 11:37:19
+LastEditTime: 2023-11-23 16:08:41
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
@@ -372,6 +372,20 @@ def tsapp_get_error_description(ACode: c_int32):
         else:
             return r
 
+def tsapp_enable_bus_statistics(AEnable:bool):
+
+    return dll.tsapp_enable_bus_statistics(AEnable)
+
+
+def tsapp_clear_bus_statistics():
+    return dll.tsapp_clear_bus_statistics()
+
+#arg[0] ABusType : None
+#arg[1] AIdxChn : None
+#arg[2] AIdxStat : None
+#arg[3] AStat : None
+def tsapp_get_bus_statistics(ABusType:dll.TLIBApplicationChannelType,AIdxChn:dll.s32,AIdxStat:dll.TLIBCANBusStatistics,AStat:dll.pdouble):
+    return dll.tsapp_get_bus_statistics(ABusType,AIdxChn,AIdxStat,AStat)
 
 # 获取can每秒帧数，需要先使能总线统计
 def tsapp_get_fps_can(AIdxChn: CHANNEL_INDEX, AIdentifier: c_int32, AFPS: c_int32):
@@ -1217,9 +1231,7 @@ def tsdb_get_signal_value_canfd(ACANFD: dll.TLIBCANFD, AMsgName: str, ASgnName: 
     ACANFD = dll.TLIBCANFD(FIdxChn=0, FDLC=8, FIdentifier=0x1, FProperties=1, FData=[1,2,3,4,5,6])
     tsdb_get_signal_value_canfd(ACANFD,b'msgname',b'siganlname',AValue)
     """
-    if isinstance(AValue,int) or isinstance(AValue,float):
-        AValue = c_int32(AValue)
-    r = dll.tsdb_get_signal_value_canfd(byref(ACANFD), AMsgName, ASgnName, byref(AValue))
+    r = dll.tsdb_get_signal_value_canfd(ACANFD, AMsgName, ASgnName,AValue)
     return r
 
 
@@ -1243,9 +1255,7 @@ def tsdb_set_signal_value_canfd(ACANFD: dll.TLIBCANFD, AMsgName: str, ASgnName: 
     ACANFD = dll.TLIBCANFD(FIdxChn=0, FDLC=8, FIdentifier=0x1, FProperties=1, FData=[1,2,3,4,5,6])
     tsdb_set_signal_value_canfd(ACANFD,b'msgname',b'siganlname',AValue)
     """
-    if isinstance(AValue,int) or isinstance(AValue,float):
-        AValue = c_int32(AValue)
-    r = dll.tsdb_set_signal_value_canfd(byref(ACANFD), AMsgName, ASgnName, AValue)
+    r = dll.tsdb_set_signal_value_canfd(ACANFD, AMsgName, ASgnName, AValue)
     return r
 
 
@@ -2374,7 +2384,7 @@ def tscom_flexray_rbs_get_signal_value_by_element(AIdxChn:c_int32,AClusterName:b
     if not isinstance(ASignalName,bytes):
         ASignalName = bytes(ASignalName)
     AValue = c_double(0)
-    ret = dll.tscom_flexray_rbs_get_signal_value_by_element(AIdxChn,AClusterName,AECUName,AFrameName,ASignalName,byref(AValue))
+    ret = dll.tscom_flexray_rbs_get_signal_value_by_element(AIdxC1hn,AClusterName,AECUName,AFrameName,ASignalName,byref(AValue))
     if ret == 0:
         return AValue.value
     return tsapp_get_error_description(ret)
@@ -3325,7 +3335,7 @@ def tslin_batch_set_schedule_stop(AIndex:CHANNEL_INDEX):
     return dll.tslin_batch_set_schedule_stop(AIndex)
 
 def tslin_batch_add_schedule_frame(AIndex:CHANNEL_INDEX,Msg:dll.TLIBLIN,ADelayMs:c_uint8):
-    return dll.tslin_batch_add_schedule_frame(AIndex,ADelayMs)
+    return dll.tslin_batch_add_schedule_frame(AIndex,Msg,ADelayMs)
 
 def tslin_clear_schedule_tables(AIndex:CHANNEL_INDEX):
     return dll.tslin_clear_schedule_tables(AIndex)

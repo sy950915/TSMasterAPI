@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:59:15
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-11-10 11:34:36
+LastEditTime: 2023-11-24 09:38:36
 '''
 from .TSDirver import *
 from .TSStructure import *  
@@ -1743,7 +1743,43 @@ set_flexray_ub_bit_auto_handle.argtypes = [c_bool]
 set_flexray_ub_bit_auto_handle.restype = TS_ReturnType
 set_flexray_ub_bit_auto_handle.errcheck = check_status_operation
 
+tsapp_enable_bus_statistics = dll.tsapp_enable_bus_statistics
+#arg[0] AEnable : None
+tsapp_enable_bus_statistics.argtypes =[c_bool]
+tsapp_enable_bus_statistics.restype = s32
 
+tsapp_clear_bus_statistics = dll.tsapp_clear_bus_statistics
+tsapp_clear_bus_statistics.argtypes =[]
+tsapp_clear_bus_statistics.restype = s32
+
+tsapp_get_bus_statistics = dll.tsapp_get_bus_statistics
+#arg[0] ABusType : None
+#arg[1] AIdxChn : None
+#arg[2] AIdxStat : None
+#arg[3] AStat : None
+tsapp_get_bus_statistics.argtypes =[s32,s32,s32,pdouble]
+tsapp_get_bus_statistics.restype = s32
+
+tsapp_get_fps_can = dll.tsapp_get_fps_can
+#arg[0] AIdxChn : None
+#arg[1] AIdentifier : None
+#arg[2] AFPS : None
+tsapp_get_fps_can.argtypes =[s32,s32,ps32]
+tsapp_get_fps_can.restype = s32
+
+tsapp_get_fps_canfd = dll.tsapp_get_fps_canfd
+#arg[0] AIdxChn : None
+#arg[1] AIdentifier : None
+#arg[2] AFPS : None
+tsapp_get_fps_canfd.argtypes =[s32,s32,ps32]
+tsapp_get_fps_canfd.restype = s32
+
+tsapp_get_fps_lin = dll.tsapp_get_fps_lin
+#arg[0] AIdxChn : None
+#arg[1] AIdentifier : None
+#arg[2] AFPS : None
+tsapp_get_fps_lin.argtypes =[s32,s32,ps32]
+tsapp_get_fps_lin.restype = s32
 
 if __name__ == '__main__': # for the module test purpose only
     ret = initialize_lib_tsmaster_with_project(b"TSMaster",b'D:\\software\\TOSUN\\TSMaster\\bin\\Configuration\\TOSUN\\TSMaster_CAN')

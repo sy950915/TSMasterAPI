@@ -12,6 +12,21 @@ class MSGType(IntEnum):
     LINMSG = 2
     FlexrayMSG = 3
 
+
+class TLIBCANBusStatistics(IntEnum):
+    cbsBusLoad = 0
+    cbsPeakLoad = 1
+    cbsFpsStdData = 2
+    cbsAllStdData = 3
+    cbsFpsExtData = 4
+    cbsAllExtData = 5
+    cbsFpsStdRemote = 6
+    cbsAllStdRemote = 7
+    cbsFpsExtRemote = 8
+    cbsAllExtRemote = 9
+    cbsFpsErrorFrame = 10
+    cbsAllErrorFrame = 11
+
 class CHANNEL_INDEX(IntEnum):
     (CHN1, CHN2, CHN3, CHN4, CHN5, CHN6, CHN7, CHN8, CHN9, CHN10, CHN11, CHN12, CHN13, CHN14, CHN15, CHN16, CHN17,
         CHN18, CHN19, CHN20, CHN21, CHN22, CHN23, CHN24, CHN25, CHN26, CHN27, CHN28, CHN29, CHN30, CHN31, CHN32) = (
