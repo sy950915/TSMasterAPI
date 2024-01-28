@@ -1,3 +1,4 @@
+import time
 from TSMasterAPI import *
 from TSMasterAPI.TSFibex_parse import *
 def crc8(data, dataId):
@@ -33,8 +34,8 @@ class TOSUN():
         tsapp_set_flexray_channel_count(2)
         tsapp_set_mapping_verbose(self.APPName,TLIBApplicationChannelType.APP_FlexRay,CHANNEL_INDEX.CHN1,b"TC1034",TLIBBusToolDeviceType.TS_USB_DEVICE,TLIB_TS_Device_Sub_Type.TC1034,0,CHANNEL_INDEX.CHN1,True)
         tsapp_set_mapping_verbose(self.APPName,TLIBApplicationChannelType.APP_FlexRay,CHANNEL_INDEX.CHN2,b"TC1034",TLIBBusToolDeviceType.TS_USB_DEVICE,TLIB_TS_Device_Sub_Type.TC1034,0,CHANNEL_INDEX.CHN2,True)
-        self.onrxtxevnet = OnTx_RxFUNC_Flexray(self.on_tx_rx)
-        self.onpretxevnet = OnTx_RxFUNC_Flexray(self.on_pre_tx)
+        self.onrxtxevnet = TFlexRayQueueEvent_Win32(self.on_tx_rx)
+        self.onpretxevnet = TFlexRayQueueEvent_Win32(self.on_pre_tx)
         self.MsgList = []
         self.obj = s32(0)
     def __unloadDBS(self):
@@ -60,7 +61,7 @@ class TOSUN():
         # 对 发送报文进行排序
         self.CHN0Frames.sort(key=lambda k: (k.get('SLOT-ID', 0)))
         fr_trigger_len = len(self.CHN0Frames)
-        fr_trigger = (TLibTrigger_def * fr_trigger_len)()
+        fr_trigger = (TLIBTrigger_def * fr_trigger_len)()
         FrameLengthArray = (c_int * fr_trigger_len)()
         for idx in range(fr_trigger_len):
             FrameLengthArray[idx] = self.CHN0Frames[idx]['FDLC']
@@ -75,7 +76,7 @@ class TOSUN():
                 fr_trigger[idx].config_byte = 0X01
         tsflexray_set_controller_frametrigger(0, FlexrayConfig, FrameLengthArray, fr_trigger_len, fr_trigger, fr_trigger_len, 1000)
 
-        FlexrayConfig1 = TLibFlexray_controller_config().set_controller_config(self.dbinfo.Ecus['VGM'],is_open_a=True, is_open_b=True, enable100_b=True, is_show_nullframe=False,is_Bridging=True)
+        FlexrayConfig1 = TLIBFlexray_controller_config().set_controller_config(self.dbinfo.Ecus['VGM'],is_open_a=True, is_open_b=True, enable100_b=True, is_show_nullframe=False,is_Bridging=True)
         self.CHN1Frames = []
 
         # 按照工程配置，发送的报文 为VDDM CEM两节点下所有发送报文
@@ -83,7 +84,7 @@ class TOSUN():
             self.CHN1Frames.append(frame)
         self.CHN1Frames.sort(key=lambda k: (k.get('SLOT-ID', 0)))
         fr_trigger_len1 = len(self.CHN1Frames)
-        fr_trigger1 = (TLibTrigger_def * fr_trigger_len1)()
+        fr_trigger1 = (TLIBTrigger_def * fr_trigger_len1)()
         FrameLengthArray1 = (c_int * fr_trigger_len1)()
         for idx in range(fr_trigger_len1):
             FrameLengthArray1[idx] = self.CHN1Frames[idx]['FDLC']
@@ -110,13 +111,13 @@ class TOSUN():
         self.start()
         self.__send_initMsg()
     def __send_initMsg(self):
-        AFlexray = TLIBFlexray(0,2,1,32,4,[0XC0,0X52,0X7B,0XFF,0X97])
+        AFlexray = TLIBFlexRay(0,2,1,32,4,[0XC0,0X52,0X7B,0XFF,0X97])
         tsapp_transmit_flexray_async(AFlexray)
-        AFlexray1 = TLIBFlexray(0,8,1,32,4,[0XC0,0X53,0Xff,0XFF,0Xb7,0x02])
+        AFlexray1 = TLIBFlexRay(0,8,1,32,4,[0XC0,0X53,0Xff,0XFF,0Xb7,0x02])
         tsapp_transmit_flexray_async(AFlexray1)
-        AFlexray2 = TLIBFlexray(0,8,1,37,2,[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB6, 0xD0, 0x00, 0x21, 0x21, 0x21, 0x36, 0x06, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06])
+        AFlexray2 = TLIBFlexRay(0,8,1,37,2,[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB6, 0xD0, 0x00, 0x21, 0x21, 0x21, 0x36, 0x06, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06])
         tsapp_transmit_flexray_async(AFlexray2)
-        AFlexray3 = TLIBFlexray(0,8,1,39,8,[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xD0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+        AFlexray3 = TLIBFlexRay(0,8,1,39,8,[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xD0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         tsapp_transmit_flexray_async(AFlexray3)
         tscom_flexray_rbs_set_signal_value_by_address(b"0/BackboneFR/CEM/CemBackBoneFr02/VehModMngtGlbSafe1UsgModSts",USGMode.UsgModCnvinc)
 
