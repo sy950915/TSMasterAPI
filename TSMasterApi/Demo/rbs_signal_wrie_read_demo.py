@@ -12,7 +12,7 @@ dbchandle = c_int32(0)
 
 # 0/CAN_FD_Powertrain/Engine/GearBoxInfo/Gear
 def connect():
-    ret = tsdb_load_can_db((_curr_path+"/CAN_FD_Powertrain.dbc").encode("utf8"), "0,1".encode("utf8"), dbchandle)
+    ret = tsdb_load_can_db((_curr_path+"/CAN_FD_Powertrain.dbc").encode("utf8"), b"0,1", dbchandle)
     print(ret,dbchandle)
     # 设置can通道数
     if (tsapp_set_can_channel_count(2) == 0):
@@ -27,13 +27,13 @@ def connect():
 
     # 硬件通道映射至软件通道
     if 0 == tsapp_set_mapping_verbose(ProjectName, TLIBApplicationChannelType.APP_CAN, CHANNEL_INDEX.CHN1,
-                                      "TC1016".encode("UTF8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
+                                      "TC1026".encode("UTF8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
                                       TLIB_TS_Device_Sub_Type.TC1016,0, CHANNEL_INDEX.CHN1, True):
         print("1通道映射成功")
     else:
         print("1通道映射失败")
     if 0 == tsapp_set_mapping_verbose(ProjectName, TLIBApplicationChannelType.APP_CAN, CHANNEL_INDEX.CHN2,
-                                      "TC1016".encode("UTF8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
+                                      "TC1026".encode("UTF8"), TLIBBusToolDeviceType.TS_USB_DEVICE,
                                       TLIB_TS_Device_Sub_Type.TC1016, 0,CHANNEL_INDEX.CHN2, True):
         print("2通道映射成功")
     else:
@@ -62,6 +62,10 @@ def connect():
         # 发送指定报文
         ret = tscom_can_rbs_activate_message_by_name(0, True, b"CAN_FD_Powertrain", b"Engine",
                                                     b"GearBoxInfo")
+    else:
+        error_code = c_char_p()
+        tsapp_get_error_description(ret,error_code)
+        print(error_code.value)
 
 
 if __name__ == "__main__":

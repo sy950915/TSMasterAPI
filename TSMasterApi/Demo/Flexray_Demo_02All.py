@@ -1,4 +1,5 @@
 from TSMasterAPI import *
+from TSMasterAPI.TSFibex_parse import *
 def crc8(data, dataId):
     data2 = [dataId & 0x00FF,(dataId & 0xFF00) >> 8] + data
     Rtn = 00^0X00
@@ -11,7 +12,7 @@ def crc8(data, dataId):
                 Rtn = (Rtn << 1)&0xff
     return Rtn
 def get_definition(ASignalAddress:bytes):
-    ASignalDef=TFlexRaySignal()
+    ASignalDef=TMPFlexRaySignal()
     ret = tscom_flexray_get_signal_definition(ASignalAddress,ASignalDef)
     if ret == 0:
         return ASignalDef
@@ -49,7 +50,7 @@ class TOSUN():
         tsapp_register_event_flexray(self.obj ,self.onrxtxevnet)
         tsapp_register_pretx_event_flexray(self.obj ,self.onpretxevnet)
         tsapp_connect()
-        FlexrayConfig = TLibFlexray_controller_config().set_controller_config(self.dbinfo.Ecus['VDDM'],is_open_a=True, is_open_b=False, enable100_b=True, is_show_nullframe=False,is_Bridging=True)
+        FlexrayConfig = TLIBFlexray_controller_config().set_controller_config(self.dbinfo.Ecus['VDDM'],is_open_a=True, is_open_b=False, enable100_b=True, is_show_nullframe=False,is_Bridging=True)
         self.CHN0Frames = []
         # 按照工程配置，发送的报文 为VDDM CEM两节点下所有发送报文
         for frame in self.dbinfo.Ecus['VDDM']['TX_Frame']:
