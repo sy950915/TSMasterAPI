@@ -6,8 +6,8 @@ LastEditTime: 2023-11-23 16:08:41
 github:https://github.com/sy950915/TSMasterAPI.git
 ''' 
 from ctypes import *
-from . import TSCommon as dll
-from .TSEnumdefine import *
+from . import TSAPI as dll
+from .TSEnum import *
 
 
 
@@ -217,21 +217,21 @@ def tsapp_configure_canfd_regs(AIdxChn: CHANNEL_INDEX, AArbBaudrateKbps: float, 
 
 
 # 设置lin通道波特率
-def tsapp_configure_baudrate_lin(AIdxChn: CHANNEL_INDEX, ABaudrateKbps: int, LIN_PROTOCOL: LIN_PROTOCOL):
+def tsapp_configure_baudrate_lin(AIdxChn: CHANNEL_INDEX, ABaudrateKbps: int, TLINProtocol: TLINProtocol):
     """
-    tsapp_configure_baudrate_lin(CHANNEL_INDEX.CHN1,19.2,LIN_PROTOCOL.LIN_PROTOCOL_13)
+    tsapp_configure_baudrate_lin(CHANNEL_INDEX.CHN1,19.2,TLINProtocol.LINProtocol_13)
     """
     if isinstance(ABaudrateKbps,int) or isinstance(ABaudrateKbps,float):
         ABaudrateKbps = c_float(ABaudrateKbps)
-    r = dll.tsapp_configure_baudrate_lin(AIdxChn, ABaudrateKbps, LIN_PROTOCOL)
+    r = dll.tsapp_configure_baudrate_lin(AIdxChn, ABaudrateKbps, TLINProtocol)
     return r
 
 
 # 设置LIN模式
-def tslin_set_node_funtiontype(AIdxChn: CHANNEL_INDEX, TLINNodeType: T_LIN_NODE_FUNCTION):
+def tslin_set_node_funtiontype(AIdxChn: CHANNEL_INDEX, TLINNodeType: TLINNodeType):
     """
-    tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,T_LIN_NODE_FUNCTION.T_MASTER_NODE) #主节点
-    tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,T_LIN_NODE_FUNCTION.T_SLAVE_NODE)  #从节点
+    tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,TLINNodeType.T_MASTER_NODE) #主节点
+    tslin_set_node_funtiontype(CHANNEL_INDEX.CHN1,TLINNodeType.T_SLAVE_NODE)  #从节点
     """
     r = dll.tslin_set_node_functiontype(AIdxChn, TLINNodeType)
     return r
@@ -2384,7 +2384,7 @@ def tscom_flexray_rbs_get_signal_value_by_element(AIdxChn:c_int32,AClusterName:b
     if not isinstance(ASignalName,bytes):
         ASignalName = bytes(ASignalName)
     AValue = c_double(0)
-    ret = dll.tscom_flexray_rbs_get_signal_value_by_element(AIdxC1hn,AClusterName,AECUName,AFrameName,ASignalName,byref(AValue))
+    ret = dll.tscom_flexray_rbs_get_signal_value_by_element(AIdxChn,AClusterName,AECUName,AFrameName,ASignalName,byref(AValue))
     if ret == 0:
         return AValue.value
     return tsapp_get_error_description(ret)

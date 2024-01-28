@@ -1,23 +1,13 @@
-'''
-Author: seven 865762826@qq.com
-Date: 2023-04-21 10:21:17
-LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-09-24 22:28:03
-'''
-from ctypes import Structure,c_char,c_int32,c_bool,c_uint8,c_int64,c_uint64,c_uint32,c_uint16,c_double,c_char_p,byref,string_at,string_at,CDLL,CFUNCTYPE,POINTER,pointer,c_void_p,c_float,c_int16,c_int8,WINFUNCTYPE
-from typing import Any
-
-
+from ctypes import *
+from .TSEnum import *
 u8 = c_uint8
 pu8 = POINTER(c_uint8)
 s8 = c_int8
 ps8 = POINTER(c_int8)
-
 u16 = c_uint16
 pu16 = POINTER(c_uint16)
 s16 = c_int16
 ps16 = POINTER(c_int16)
-
 u32 = c_uint32
 pu32 = POINTER(c_uint32)
 s32 = c_int32
@@ -28,13 +18,15 @@ u64 = c_uint64
 pu64 = POINTER(c_uint64)
 double = c_double
 pdouble = POINTER(c_double)
-charpp = POINTER(c_char_p)
-
-
-
-
-
-
+pchar = c_char_p
+ppchar = POINTER(c_char_p)
+char = c_char
+single = c_float
+psingle = POINTER(c_float)
+TObject = c_void_p
+pbool = POINTER(c_bool)
+pvoid = c_void_p
+size_t = c_size_t
 
 
 DLC_DATA_BYTE_CNT = (
@@ -42,26 +34,6 @@ DLC_DATA_BYTE_CNT = (
     8, 12, 16, 20, 24, 32, 48, 64
 )
 
-TS_ReturnType = c_int32
-
-class TLIBTSMapping(Structure):
-    '''
-    通道映射结构体
-    字段赋值,使用TSMaster进行连接后,点击通道选择界面的"C"图标进行查看
-    使用函数:tsapp_set_mapping
-    '''
-    _pack_ = 1
-    _fields_ = [("FAppName", c_char * 32),
-                ("FAppChannelIndex", c_int32),
-                ("FAppChannelType", c_int32),
-                ("FHWDeviceType", c_int32),
-                ("FHWIndex", c_int32),
-                ("FHWChannelIndex", c_int32),
-                ("FHWDeviceSubType", c_int32),
-                ("FHWDeviceName", c_char * 32),
-                ("FMappingDisabled", c_bool),
-                ]
-PLIBTSMapping = POINTER(TLIBTSMapping)
 class TLIBCAN(Structure):
     '''
     CAN报文结构体
@@ -127,7 +99,7 @@ class TLIBCAN(Structure):
         field_strings.append(" ".join(data_strings).ljust(24, " "))
         return "    ".join(field_strings).strip()
     
-PCAN = POINTER(TLIBCAN)
+PLIBCAN = POINTER(TLIBCAN)
 
 class TLIBCANFD(Structure):
     '''
@@ -201,7 +173,7 @@ class TLIBCANFD(Structure):
         field_strings.append(" ".join(data_strings).ljust(24, " "))
         return "    ".join(field_strings).strip()
 
-PCANFD = POINTER(TLIBCANFD)
+PLIBCANFD = POINTER(TLIBCANFD)
 
 class TLIBLIN(Structure):
     '''
@@ -258,9 +230,9 @@ class TLIBLIN(Structure):
         field_strings.append(" ".join(data_strings).ljust(24, " "))
         return "    ".join(field_strings).strip()
     
-PLIN = POINTER(TLIBLIN)
+PLIBLIN = POINTER(TLIBLIN)
 
-class TLIBFlexray(Structure):
+class TLIBFlexRay(Structure):
     _pack_ = 1
     _fields_ = [("FIdxChn", c_uint8),
                 ("FChannelMask", c_uint8),
@@ -322,9 +294,8 @@ class TLIBFlexray(Structure):
         field_strings.append(" ".join(data_strings).ljust(24, " "))
         return "    ".join(field_strings).strip()
     
-PFlexray = POINTER(TLIBFlexray)    
-
-class TLibFlexray_controller_config(Structure):
+PLIBFlexRay = POINTER(TLIBFlexRay)    
+class TLIBFlexray_controller_config(Structure):
     """
     Flexray controller config结构体
     作用:在配置flexray时,需要对硬件参数进行配置
@@ -535,308 +506,463 @@ class TLibFlexray_controller_config(Structure):
                     self.config_byte = 0x3c
             self.config_byte = self.config_byte | (0x1 if enable100_a else 0x00) | (0x2 if enable100_b else 0x00) | (0x40 if is_show_nullframe else 0x00)
         return self
-PLibFlexray_controller_config = POINTER(TLibFlexray_controller_config) 
-class TLibTrigger_def(Structure):
-    """
-    Trigger 结构体
-    作用:调度表,配置要下发的报文
-    关联函数:tsflexray_set_controller_frametrigger
-    """
-    _pack_ = 1
-    _fields_ = [("slot_id", c_uint16),   #slot ID
-                ("frame_idx", c_uint8),  #Frame id
-                ("cycle_code", c_uint8), #base_cycle+rep_cycle
-                ("config_byte", c_uint8),  # bit0: 是否使能通道A
-                # bit1: 是否使能通道B
-                # bit2: 是否网络管理报文
-                # bit3: 传输模式，0 表示连续传输，1表示单次触发
-                # bit4: 是否为冷启动报文，只有缓冲区0可以置1
-                # bit5: 是否为同步报文，只有缓冲区0 / 1 可以置1
-                # bit6:
-                # bit7: 帧类型：0 - 静态，1 - 动态
-                ("recv", c_uint8),
-                ]
-PLibTrigger_def = POINTER(TLibTrigger_def)
-class TLIBHWInfo(Structure):
-    """
-    描述:TLib 的硬件信息结构体类型
-    """
-    _pack_ = 1
-    _fields_ = [("FDeviceType", c_int32),
-                ("FDeviceIndex", c_int32),
-                ("FVendorName", c_char * 32),
-                ("FDeviceName", c_char * 32),
-                ("FSerialString", c_char * 64),
-                ]
+PLIBFlexray_controller_config = POINTER(TLIBFlexray_controller_config) 
 
-PLIBHWInfo = POINTER(TLIBHWInfo)
-
-DATABASE_STR_LEN = 512    
-
-class TCANSignal(Structure):
-    '''
-    CAN Signal 
-    '''
-    _pack_ = 1
-    _fields_ = [("FCANSgnType", c_uint8),
-                ("FIsIntel", c_bool),
-                ("FStartBit", c_int32),
-                ("FLength", c_int32),
-                ("FFactor", c_double),
-                ("FOffset", c_double),
-                ]
-PCANSignal = POINTER(TCANSignal)    
-class TLINSignal(Structure):
-    '''
-    LIN Signal 
-    '''
-    _pack_ = 1
-    _fields_ = [("FLINSgnType", c_uint8),
-                ("FIsIntel", c_bool),
-                ("FStartBit", c_int32),
-                ("FLength", c_int32),
-                ("FFactor", c_double),
-                ("FOffset", c_double),
-                ]
-PLINSignal = POINTER(TLINSignal)      
-class TFlexRaySignal(Structure):
-    '''
-    获取信号在数据库中的定义 通过该结构体 可获取对报文中该信号值以及设置对应报文该信号值
-    相关函数：
-    tscom_flexray_get_signal_definition
-    tscom_flexray_set_signal_value_in_raw_frame
-    tscom_flexray_get_signal_value_in_raw_frame
-    函数使用示例可在Flexray_demo中找到
-    '''
-    _pack_ =1
-    _fields_ = [
-                ("FFRSgnType",c_uint8),
-                ("FCompuMethod",c_uint8),
-                ("FReserved",c_uint8),
-                ("FIsIntel",c_bool),
-                ("FStartBit",c_int32),
-                ("FUpdateBit",c_int32),
-                ("FLength",c_int32),
-                ("FFactor",c_double),
-                ("FOffset",c_double),
-                ("FActualStartBit",c_int32),
-                ("FActualUpdateBit",c_int32),
-                ] 
-PFlexRaySignal = POINTER(TFlexRaySignal)
-class TDBProperties(Structure):
-    '''
-    DataBase properties 描述数据库中的报文数量 信号数量 ECU节点数量
-    '''
-    _pack_ = 1
-    _fields_ = [("FDBIndex", c_int32),
-                ("FSignalCount", c_int32),
-                ("FFrameCount", c_int32),
-                ("FECUCount", c_int32),
-                ("FSupportedChannelMask", c_uint64),
-                ("FName", c_char * DATABASE_STR_LEN),
-                ("FComment", c_char * DATABASE_STR_LEN),
-                ("FFlags", u64),
-                ]
-PDBProperties = POINTER(TDBProperties)
-class TDBECUProperties(Structure):
-    '''
-    DataBase ECU properties 描述数据库中ECU节点 TX RX报文数量以及ECU节点名称与注释
-    '''
-    _pack_ = 1
-    _fields_ = [("FDBIndex", c_int32),
-                ("FECUIndex", c_int32),
-                ("FTxFrameCount", c_int32),
-                ("FRxFrameCount", c_int32),
-                ("FName", c_char * DATABASE_STR_LEN),
-                ("FComment", c_char * DATABASE_STR_LEN),
-                ]
-PDBECUProperties = POINTER(TDBECUProperties) 
-class TDBFrameProperties(Structure):
-    '''
-    DataBase Frame properties 描述数据库中Frame signal数量以及Frame名称与注释
-    '''
-    _pack_ = 1
-    _fields_ = [("FDBIndex", c_int32),
-                ("FECUIndex", c_int32),
-                ("FFrameIndex", c_int32),
-                ("FIsTx", c_uint8),
-                ("FReserved1", c_uint8),
-                ("FReserved2", c_uint8),
-                ("FReserved3", c_uint8),
-                ("FFrameType", c_int32),
-                # CAN
-                ("FCANIsDataFrame", c_uint8),
-                ("FCANIsStdFrame", c_uint8),
-                ("FCANIsEdl", c_uint8),
-                ("FCANIsBrs", c_uint8),
-                ("FCANIdentifier", c_int32),
-                ("FCANDLC", c_int32),
-                ("FCANDataBytes", c_int32),
-                #LIN
-                ("FLINIdentifier", c_int32),
-                ("FLINDLC", c_int32),
-                #FLEXRAY
-                ("FFRChannelMask", c_uint8),
-                ("FFRBaseCycle", c_uint8),
-                ("FFRCycleRepetition", c_uint8),
-                ("FFRIsStartupFrame", c_uint8),
-                ("FFRSlotId", c_uint16),
-                ("FFRDLC", c_uint16),
-                ("FFRCycleMask", c_uint64),
-                ("FSignalCount", c_int32),
-                ("FName", c_char * DATABASE_STR_LEN),
-                ("FComment", c_char * DATABASE_STR_LEN),
-                ] 
-PDBFrameProperties = POINTER(TDBFrameProperties)     
-class TDBSignalProperties(Structure):
-    '''
-    DataBase Signal properties 描述数据库中 signal详细信息
-    '''
-    _pack_ = 1
-    _fields_ = [("FDBIndex", c_int32),
-                ("FECUIndex", c_int32),
-                ("FFrameIndex", c_int32),
-                ("FSignalIndex", c_int32),
-                ("FIsTx", c_uint8),
-                ("FReserved1", c_uint8),
-                ("FReserved2", c_uint8),
-                ("FReserved3", c_uint8),
-                ("FSignalType", c_int32),
-                ("FCANSignal", TCANSignal),
-                ("FLINSignal", TLINSignal),
-                ("FFlexRaySignal", TFlexRaySignal),
-                ("FParentFrameId", c_int32),
-                ("FInitValue", c_double),
-                ("FName", c_char * DATABASE_STR_LEN),
-                ("FComment", c_char * DATABASE_STR_LEN),
-                ] 
-
-PDBSignalProperties = POINTER(TDBSignalProperties) 
-
-GENERIC_STRING_MAX_LENGTH = 32
-class TFlexRayClusterParameters(Structure):
-    '''
-    DataBase Signal properties 描述数据库中 signal详细信息
-    '''
-    _pack_ = 1
-    _fields_ = [("FShortName", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FLongName", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FDescription", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FSpeed", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FChannels", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FBitCountingPolicy", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FProtocol", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FProtocolVersion", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FMedium",  c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FIsHighLowBitOrder", s32),
-                ("FMaxFrameLengthByte", s32),
-                ("FNumberOfCycles", s32),
-                ("FCycle_us", s32),
-                ("FBit_us", double),
-                ("FSampleClockPeriod_us", double),
-                ("FMacrotick_us", double),
-
-                ("FMacroPerCycle", s32),
-                ("FNumberOfStaticSlots", s32),
-                ("FStaticSlot_MT", s32),
-                ("FActionPointOffset_MT", s32),
-                ("FPayloadLengthStatic_WORD", s32),
-                ("FNumberOfMiniSlots", s32),
-                ("FMiniSlot_MT", s32),
-                ("FMiniSlotActionPointOffset_MT", s32),
-                ("FDynamicSlotIdlePhase_MiniSlots", s32),
-                ("FSymbolWindow_MT", s32),
-                ("FNIT_MT", s32),
-                ("FSyncNodeMax", s32),
-                ("FNetworkManagementVectorLength", s32),
-                ("FListenNoise", s32),
-                ("FColdStartAttempts", s32),
-                ("FCASRxLowMax_gdBit", s32),
-                ("FWakeupSymbolRxIdle_gdBit", s32),
-                ("FWakeupSymbolRxLow_gdBit", s32),
-                ("FWakeupSymbolRxWindow_gdBit", s32),
-                ("FWakeupSymbolTxIdle_gdBit", s32),
-                ("FWakeupSymbolTxLow_gdBit", s32),
-                ("FMaxInitializationError_us", double),
-                ("FClusterDriftDamping_uT", s32),
-                ("FOffsetCorrectionStart_MT", s32),
-                ("FMaxWithoutClockCorrectionFatal", s32),
-                ("FMaxWithoutClockCorrectionPassive", s32),
-                ] 
-PFlexRayClusterParameters = POINTER(TFlexRayClusterParameters)
-
-
-class TFlexRayControllerParameters(Structure):
-    '''
-    DataBase Signal properties 描述数据库中 signal详细信息
-    '''
-    _pack_ = 1
-    _fields_ = [("FShortName", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FConnectedChannels", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FMicroPerCycle_uT", s32),
-                ("FMicroPerMacroNom_uT", s32),
-                ("FMicroTick_us", double),
-                ("FSamplesPerMicrotick", s32),
-                ("FWakeupChannelA", s32),
-                ("FWakeupChannelB", s32),
-                ("FMaxDrift_uT", s32),
-                ("FWakeupPattern", s32),
-                ("FListenTimeout_uT", s32),
-                ("FAcceptedStartupRange_uT", s32),
-                ("FMacroInitialOffsetA_MT", s32),
-                ("FMacroInitialOffsetB_MT", s32),
-                ("FMicroInitialOffsetA_uT", s32),
-                ("FMicroInitialOffsetB_uT", s32),
-                ("FKeySlotUsage", c_char * GENERIC_STRING_MAX_LENGTH),
-                ("FKeySlotID", s32),
-                ("FSingleSlotEnabled", s32),
-                ("FClusterDriftDamping_uT", s32),
-                ("FDocodingCorrection_uT", s32),
-                ("FDelayCompensationA_uT", s32),
-                ("FDelayCompensationB_uT", s32),
-                ("FOffsetCorrectionOut_uT", s32),
-                ("FExternRateCorrection_uT", s32),
-                ("FRateCorrectionOut_uT", s32),
-                ("FExternOffsetCorrection_uT", s32),
-                ("FAllowHaltDueToClock", s32),
-                ("FAllowPassivToActive", s32),
-                ("FLatestTx", s32),
-                ("FMaxDynamicPayloadLength", s32),
-                ] 
-
-PFlexRayControllerParameters = POINTER(TFlexRayControllerParameters) 
-
-# ETH
 class TLIBEthernetHeader(Structure):
     _pack_ = 1
-    _fields_ = [("FIdxChn", u8),
-                ("FIdxSwitch", u8),
-                ("FIdxPort", u8),
-                ("FConfig", u8),
-                ("FEthernetPayloadLength", u16),
-                ("FReserved", u16),
-                ("FTimeUs", u64),
-                ("FEthernetDataAddr", c_char_p),
-                ("FPadding", u32),
-                ] 
+    _fields_ = [
+        ('FIdxChn',u8),#app channel index starting from 0 = Network index
+        ('FIdxSwitch',u8),#Network's switch index
+        ('FIdxPort',u8),# Network's switch's port index, 0~127: measurement port, 128~255: virtual port
+        ('FConfig',u8),#  0-1: 0 = Rx, 1 = Tx, 2 = TxRq // 2: crc status, for tx, 0: crc is include in data, 1: crc is not include in data //                for rx, 0: crc is ok, 1: crc is not ok // 3: tx done type, 0: only report timestamp, 1: report full info(header+frame)
+        ('FEthernetPayloadLength',u16),# Length of Ethernet payload data in bytes. Max. 1582 Byte(without Ethernet header), 1612 Byte(Inclusive ethernet header)
+        ('freserved',u16),#Reserved
+        ('FTimeUs',u64),#timestamp in us
+        ('FEthernetDataAddr',pu8),#data ps32
+        ('FPaddings',u32),#to be compatible with x64
+        ]
+    def __init__(self, APayloadLength,AEthernetDataAddr) -> None:
+        self.FIdxChn = 0
+        self.FIdxSwitch = 0
+        self.FIdxPort = 0
+        self.FConfig = 0
+        self.FEthernetPayloadLength = APayloadLength
+        self.FReserved = 0
+        self.FTimeUs = 0
+        self.FEthernetDataAddr = AEthernetDataAddr
+        self.FPadding = 0
+        n = min(1612 - 14,APayloadLength)
+        n += 14
+        for i in range(0,n):
+            self.FEthernetDataAddr[i] = 0
+        self.FEthernetDataAddr[12] = 0
+        self.FEthernetDataAddr[13] = 0
+        for i in range(6):
+            self.FEthernetDataAddr[i] = 0xFF  
+        # pu8 p = FEthernetDataAddr
+        # s32 n = MIN(1612 - 14, APayloadLength)
+        # n += 14
+        # for (i=0 i<n i++){
+        #     *p++ = 0
+        # }
+        # *(pu16)(ethernet_type_addr()) = 0x00 // IPV4 = swap(0x0800)
+        # p = destination_mac_addr()
+        # for (i=0 i<6 i++){
+        #     *p++ = 0xFF
+        # }
+
 PLIBEthernetHeader = POINTER(TLIBEthernetHeader)
-class TEthernetMAX(Structure):
+
+
+
+class TLIBFlexRayClusterParameters(Structure):
     _pack_ = 1
-    _fields_ = [("FHeader", TLIBEthernetHeader),
-                ("FBytes", u8*1612),
-                ] 
-PEthernetMAX = POINTER(TEthernetMAX)
+    _fields_ = [
+        ('FShortName',char * 32),#
+        ('FLongName',char * 32),#
+        ('FDescription',char * 32),#
+        ('FSpeed',char * 32),#
+        (' FChannels',char * 32),#
+        ('FBitCountingPolicy',char * 32),#
+        ('FProtocol',char * 32),#
+        ('FProtocolVersion',char * 32),#
+        ('FMedium',char * 32),#
+        ('FIsHighLowBitOrder',s32),#
+        ('FMaxFrameLengthByte',s32),#
+        ('FNumberOfCycles',s32),#cycle parameters
+        ('FCycle_us',s32),#
+        ('FBit_us',double),#
+        ('FSampleClockPeriod_us',double),#
+        (' FMacrotick_us',double),#
+        ('FMacroPerCycle',s32),#
+        ('FNumberOfStaticSlots',s32),#
+        ('FStaticSlot_MT',s32),#
+        ('FActionPointOffset_MT',s32),#
+        ('FTSSTransmitter_gdBit',s32),#
+        ('FPayloadLengthStatic_WORD',s32),#
+        ('FNumberOfMiniSlots',s32),#
+        ('FMiniSlot_MT',s32),#
+        ('FMiniSlotActionPointOffset_MT',s32),#
+        ('FDynamicSlotIdlePhase_MiniSlots',s32),#
+        (' FSymbolWindow_MT',s32),#
+        ('FNIT_MT',s32),#
+        ('FSyncNodeMax',s32),#
+        ('FNetworkManagementVectorLength',s32),#Wakeup and startup parameters
+        ('FListenNoise',s32),#
+        ('FColdStartAttempts',s32),#
+        ('FCASRxLowMax_gdBit',s32),#
+        ('FWakeupSymbolRxIdle_gdBit',s32),#
+        ('FWakeupSymbolRxLow_gdBit',s32),#
+        (' FWakeupSymbolRxWindow_gdBit',s32),#
+        ('FWakeupSymbolTxIdle_gdBit',s32),#
+        ('FWakeupSymbolTxLow_gdBit',s32),#
+        ('FMaxInitializationError_us',double),#clock correction parameters
+        ('FClusterDriftDamping_uT',s32),#
+        ('FOffsetCorrectionStart_MT',s32),#
+        ('FMaxWithoutClockCorrectionFatal',s32),#
+        ('FMaxWithoutClockCorrectionPassive',s32),#
+        ]
+PLIBFlexRayClusterParameters = POINTER(TLIBFlexRayClusterParameters)
 
+class TLIBFlexRayControllerParameters(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FShortName',char * 32),#
+        ('FConnectedChannels',char * 32),#cycle parameters
+        ('FMicroPerCycle_uT',s32),#
+        ('FMicroPerMacroNom_uT',s32),#
+        ('FMicroTick_us',double),#
+        ('FSamplesPerMicrotick',s32),#wakeup & startup parameters
+        (' FWakeupChannelA',s32),#
+        (' FWakeupChannelB',s32),#
+        (' FMaxDrift_uT',s32),#
+        (' FWakeupPattern',s32),#
+        (' FListenTimeout_uT',s32),#
+        (' FAcceptedStartupRange_uT',s32),#
+        (' FMacroInitialOffsetA_MT',s32),#
+        (' FMacroInitialOffsetB_MT',s32),#
+        (' FMacroInitialOffsetA_uT',s32),#
+        (' FMacroInitialOffsetB_uT',s32),#clock correction parameters
+        (' FKeySlotUsage',char * 32),#
+        (' FKeySlotID',s32),#
+        (' FsingleSlotEnabled',s32),#
+        (' FClusterDriftDamping_uT',s32),#
+        (' FDocodingCorrection_uT',s32),#
+        (' FDelayCompensationA_uT',s32),#
+        (' FDelayCompensationB_uT',s32),#
+        (' FOffsetCorrectionOut_uT',s32),#
+        (' FExternRateCorrection_uT',s32),#
+        (' FRateCorrectionOut_uT',s32),#
+        (' FExternOffsetCorrection_uT',s32),#
+        (' FAllowHaltDueToClock',s32),#
+        (' FAllowPassivToActive',s32),#latesttx
+        (' FLatestTx',s32),#
+        (' FMaxDynamicPayloadLength',s32),#
+        ]
+PLIBFlexRayControllerParameters = POINTER(TLIBFlexRayControllerParameters)
 
-#回调函数
+class TLIBEthernetMAX(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FHeader',TLIBEthernetHeader),#
+        ('FBytes',u8 * 1612),#starting by destination MAC, source MAC, ethernet type, payload...
+        ]
+PLIBEthernetMAX = POINTER(TLIBEthernetMAX)
 
-OnTx_RxFUNC_CANFD = WINFUNCTYPE(None, ps32, PCANFD)
+class TLIBTrigger_def(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('frame_idx',u8),#
+        ('slot_id',u8),#
+        ('cycle_code',u8),#BASE-CYCLE + CYCLE-REPETITION
+        ('config_byte',u8),#//bit 0:是否使能通道A//bit 1:是否使能通道B//bit 2:是否网络管理报文//bit 3:传输模式，0表示连续传输，1表示单次触发//bit 4:是否为冷启动报文，只有缓冲区0可以置1//bit 5:是否为同步报文，只有缓冲区0/1可以置1//bit 6://bit 7:帧类型：0-静态，1-动态
+        ]
+PLIBTrigger_def = POINTER(TLIBTrigger_def)
 
+class TLIBGPSData(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FTimeUS',u64),#timestamp in us
+        ('UTCTime',u32),#
+        ('UTCDate',u32),#
+        ('Latitude',single),#
+        ('Longitude',single),#
+        ('Speed',single),#
+        ('Direct',single),#
+        ('Altitude',single),#
+        ('N_S',u8),#
+        ('E_W',u8),#
+        ('Satellite',u8),#
+        ('FIdxChn',u8),#
+        ]
+PLIBGPSData = POINTER(TLIBGPSData)
 
-OnTx_RxFUNC_CAN = WINFUNCTYPE(None, ps32, PCAN)
+class TLIBEth_CMD_config(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('eth_config0',u8),#//bit 0-1 phy_type:2; //0: 100base-Tx/1000Base-T, 1: 100/1000Base-T1, 2,3: rev//bit2 auto_neg : 1;//bit3-4: speed : 2; //0-10mbps, 1-100mbps, 2-1000mbps//bit5: is_master : 1;//bit6-7 loop : 2;//0: no loop, 1: mac_loop, 2: phy-loop, 3: phy_remote loop
+        ('eth_config1',u8),#//bit0 wakeup : 1;//0-disable, 1-enable//bit1-4 test_mode : 4;//  0x00 normal operation  other test mode//bit5-6 tx_mode : 2;//  0x00 enable 0x01 disable//bit7  enable : 1;
+        ('eth_config2',u8),#//bit0-4 phy_addr : 5;//bit5 accept wrong crc frame:1
+        ('eth_config3',u8),#//bit0: disable_promiscuous_mode//bit1: enable_recieve_all//bit2-3: enable_srouce_fileter: 0 disable 1: enable 2 inverse//bit4: inverse_dest_fileter//bit5-6: ControlFrames: 0: block all  1: forward all  2: forward by filter//bit7: enable rx broadcast frame
+        ('filter_config0',u8),#//bit0-1: multicast frame filter: 0: no filter  1: perfect 2: hash 3: hash and perfect//bit2-3: unicast frame filter: 0: perfect 1: hash 2: hash and perfect
+        ('filter_config1',u8),#
+        ('filter_hash_table',u64),#//bit0-47: mac addr For example, if 0x112233445566 is received//          (0x11 in lane 0 of the first column) on the MII as the destination address, then the//          MacAddress0 Register [47:0] is compared with 0x665544332211//          perfect0 is always enable
+        ('filter_perfect0',u64),#//bit63: AE: Address Enable, When this bit is set, the address filter module uses the second MAC address for perfect//          filtering. When this bit is reset, the address filter module ignores the address for filtering.//bit62: SA: Source Address://          When this bit is set, the MAC Address1[47:0] is used to compare with the SA fields of the//          received packet. When this bit is reset, the MAC Address x[47:0] is used to compare with the//          DA fields of the received packet.//bit56-61: MBC[5:0]: Mask Byte Control//          These bits are mask control bits for comparing each of the MAC Address bytes. When set//          high, the MAC does not compare the corresponding byte of received DA or SA with the//          contents of MAC Address1 registers. Each bit controls the masking of the bytes as follows://          Bit 29: Register 194[15:8]//          Bit 28: Register 194[7:0]//          Bit 27: Register 195[31:24]//          ..//          Bit 24: Register 195[7:0]//          You can filter a group of addresses (known as group address filtering) by masking one or//          more bytes of the address.//bit0-47:  same as filter_perfect0
+        ('filter_perfect1',u64),#
+        ('rev',u64 * 6),#48
+        ]
+PLIBEth_CMD_config = POINTER(TLIBEth_CMD_config)
 
+class Trealtime_comment_t(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FTimeUs',s64),#
+        ('FEventType',s32),#
+        ('FCapacity',s32),#
+        ('FComment',pchar),#
+        ('FPadding',u32),#to be compatible with x64
+        ]
+Prealtime_comment_t = POINTER(Trealtime_comment_t)
 
-OnTx_RxFUNC_LIN = WINFUNCTYPE(None, ps32, PLIN)
+class TLIBSystemVar(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FTimeUs',s64),#
+        ('FType',s32),#
+        ('FNameCapacity',u32),#
+        ('FDataCapacity',u32),#
+        ('FName',pchar),#
+        ('FData',pu8),#
+        ('FPadding',s64),#to be compatible with x64
+        ]
+PLIBSystemVar = POINTER(TLIBSystemVar)
 
+class TMPCANSignal(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FCANSgnType',u8),#0 - Unsigned, 1 - Signed, 2 - single 32, 3 - Double 64
+        ('FIsIntel', c_bool),#
+        ('FStartBit',s32),#
+        ('FLength',s32),#
+        ('FFactor',double),#
+        ('FOffset',double),#
+        ]
+PMPCANSignal = POINTER(TMPCANSignal)
 
-OnTx_RxFUNC_Flexray = WINFUNCTYPE(None, ps32, PFlexray)
+class TMPLINSignal(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FLINSgnType',u8),#0 - Unsigned, 1 - Signed, 2 - single 32, 3 - Double 64
+        ('FIsIntel', c_bool),#
+        ('FStartBit',s32),#
+        ('FLength',s32),#
+        ('FFactor',double),#
+        ('FOffset',double),#
+        ]
+PMPLINSignal = POINTER(TMPLINSignal)
+
+class TMPFlexRaySignal(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FFRSgnType',u8),#0 - Unsigned, 1 - Signed, 2 - single 32, 3 - Double 64
+        ('FCompuMethod',u8),#0 - Identical, 1 - Linear, 2 - Scale Linear, 3 - TextTable, 4 - TABNoIntp, 5 - Formula
+        ('FReserved',u8),#
+        ('FIsIntel', c_bool),#
+        ('FStartBit',s32),#
+        ('FUpdateBit',s32),#
+        ('FLength',s32),#
+        ('FFactor',double),#
+        ('FOffset',double),#
+        ('FActualStartBit',s32),#added 2023-07-18
+        ('FActualUpdateBit',s32),#added 2023-07-18
+        ]
+PMPFlexRaySignal = POINTER(TMPFlexRaySignal)
+
+class TMPDBProperties(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FDBIndex',s32),#
+        ('FSignalCount',s32),#
+        ('FFrameCount',s32),#
+        ('FECUCount',s32),#
+        ('FSupportedChannelMask',u64),#
+        ('FName',char * 512),#
+        ('FComment',char * 512),#
+        ('FFlags',u64),#Bit 0: whether generate mp header
+        ]
+PMPDBProperties = POINTER(TMPDBProperties)
+
+class TMPDBECUProperties(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FDBIndex',s32),#
+        ('FECUIndex',s32),#
+        ('FTxFrameCount',s32),#
+        ('FRxFrameCount',s32),#
+        ('FName',char * 512),#
+        ('FComment',char * 512),#
+        ]
+PMPDBECUProperties = POINTER(TMPDBECUProperties)
+
+class TMPDBFrameProperties(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FDBIndex',s32),#
+        ('FECUIndex',s32),#
+        ('FFrameIndex',s32),#
+        ('FIsTx',u8),#
+        ('FReserved1',u8),#
+        ('FCycleTimeMs',u16),#
+        ('FFrameType',s32),#
+        ('FCANIsDataFrame',u8),#
+        ('FCANIsStdFrame',u8),#
+        ('FCANIsEdl',u8),#
+        ('FCANIsBrs',u8),#
+        ('FCANIdentifier',s32),#
+        ('FCANDLC',s32),#
+        ('FCANDataBytes',s32),#
+        ('FLINIdentifier',s32),#
+        ('FLINDLC',s32),#
+        ('FFRChannelMask',u8),#
+        ('FFRBaseCycle',u8),#
+        ('FFRCycleRepetition',u8),#
+        ('FFRIsStartupFrame',u8),#
+        ('FFRSlotId',u16),#
+        ('FFRDLC',u16),#
+        ('FFRCycleMask',u64),#
+        ('FSignalCount',s32),#
+        ('FName',char * 512),#
+        ('FComment',char * 512),#
+        ]
+PMPDBFrameProperties = POINTER(TMPDBFrameProperties)
+
+class TMPDBSignalProperties(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FDBIndex',s32),#
+        ('FECUIndex',s32),#
+        ('FFrameIndex',s32),#
+        ('FSignalIndex',s32),#
+        ('FIsTx',u8),#
+        ('FReserved1',u8),#
+        ('FReserved2',u8),#
+        ('FReserved3',u8),#
+        ('FSignalType',s32),#
+        ('FCANSignal',TMPCANSignal),#
+        ('FLINSignal',TMPLINSignal),#
+        ('FFlexRaySignal',TMPFlexRaySignal),#
+        ('FParentFrameId',s32),#
+        ('FInitValue',double),#
+        ('FName',char * 512),#
+        ('FComment',char * 512),#
+        ]
+PMPDBSignalProperties = POINTER(TMPDBSignalProperties)
+
+class TLIBHWInfo(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FDeviceType',s32),#
+        ('FDeviceIndex',s32),#
+        ('FVendorName',char * 32),#
+        ('FDeviceName',char * 32),#
+        ('FSerialString',char * 64),#
+        ]
+PLIBHWInfo = POINTER(TLIBHWInfo)
+
+class TLIBTSMapping(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FAppName',char * 32),#
+        ('FAppChannelIndex',s32),#
+        ('FAppChannelType',s32),#
+        ('FHWDeviceType',s32),#
+        ('FHWIndex',s32),#
+        ('FHWChannelIndex',s32),#
+        ('FHWDeviceSubType',s32),#
+        ('FHWDeviceName',char * 32),#
+        ('FMappingDisabled', c_bool),#
+        ]
+PLIBTSMapping = POINTER(TLIBTSMapping)
+
+class TLIBSystemVarDef(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('FName',char * 32),#
+        ('FCategory',char * 32),#
+        ('FComment',char * 32),#
+        ('FDataType',s32),#
+        ('FIsReadOnly', c_bool),#
+        ('FValueMin',double),#
+        ('FValueMax',double),#
+        ('FUnit',char * 32),#
+        ]
+PLIBSystemVarDef = POINTER(TLIBSystemVarDef)
+
+class Tip4_addr_t(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('addr',u32),#
+        ]
+Pip4_addr_t = POINTER(Tip4_addr_t)
+
+class Tip6_addr_t(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('addr',u32 * 4),#
+        ('zone',u8),#
+        ]
+Pip6_addr_t = POINTER(Tip6_addr_t)
+
+class Tts_sockaddr(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('sa_len',u8),#
+        ('sa_family',u8),#
+        ('sa_data',char * 14),#
+        ]
+Pts_sockaddr = POINTER(Tts_sockaddr)
+
+class Tts_iovec(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('iov_base',TObject),#
+        ('iov_len',size_t),#
+        ]
+Pts_iovec = POINTER(Tts_iovec)
+
+class Tts_msghdr(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('msg_name',TObject),#
+        ('msg_namelen',u32),#
+        ('msg_iov',Pts_iovec),#
+        ('msg_iovlen',s32),#
+        ('msg_control',TObject),#
+        ('msg_controllen',u32),#
+        ('msg_flags',s32),#
+        ]
+Pts_msghdr = POINTER(Tts_msghdr)
+
+class Tts_fd_set(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('fd_bits',u8 * 2),#
+        ]
+Pts_fd_set = POINTER(Tts_fd_set)
+
+class Tts_timeval(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('tv_sec',u32),#
+        ('tv_usec',u32),#
+        ]
+Pts_timeval = POINTER(Tts_timeval)
+
+class Tts_pollfd(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('fd',s32),#
+        ('events',s16),#
+        ('revents',s16),#
+        ]
+Pts_pollfd = POINTER(Tts_pollfd)
+
+class Tts_sockaddr_in(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('sin_len',u8),#
+        ('sin_family',u8),#
+        ('sin_port',u16),#
+        ('sin_addr',Tip4_addr_t),#
+        ('sin_zero',u8 * 8),#
+        ]
+Pts_sockaddr_in = POINTER(Tts_sockaddr_in)
+
+class Tip_addr_t(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('ip4Or6',Tip6_addr_t),#
+        ('FType',u32),#
+        ]
+Pip_addr_t = POINTER(Tip_addr_t)
+

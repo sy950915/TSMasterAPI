@@ -2,7 +2,7 @@
 Author: seven 865762826@qq.com
 Date: 2023-04-21 11:21:33
 LastEditors: seven 865762826@qq.com
-LastEditTime: 2023-04-21 11:53:08
+LastEditTime: 2023-11-22 10:26:17
 '''
 from ctypes import WinDLL
 import os
@@ -31,6 +31,7 @@ while True:
 if dll_path != '':
     try:
         dll_path = os.path.split(dll_path)[0] + '/TSMaster.dll'
+        dllPath = os.path.split(dll_path)[0]
         dll = WinDLL(dll_path)
     except Exception as r:
         print(r"Could not load the TOSUN DLL from '%s'. Error: %s" % (dll_path, r))
