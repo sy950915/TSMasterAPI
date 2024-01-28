@@ -553,8 +553,7 @@ class TLIBEthernetHeader(Structure):
 
 PLIBEthernetHeader = POINTER(TLIBEthernetHeader)
 
-
-
+
 class TLIBFlexRayClusterParameters(Structure):
     _pack_ = 1
     _fields_ = [
@@ -602,8 +601,7 @@ class TLIBFlexRayClusterParameters(Structure):
         ('FMaxWithoutClockCorrectionFatal',s32),#
         ('FMaxWithoutClockCorrectionPassive',s32),#
         ]
-PLIBFlexRayClusterParameters = POINTER(TLIBFlexRayClusterParameters)
-
+PLIBFlexRayClusterParameters = POINTER(TLIBFlexRayClusterParameters)
 class TLIBFlexRayControllerParameters(Structure):
     _pack_ = 1
     _fields_ = [
@@ -639,16 +637,14 @@ class TLIBFlexRayControllerParameters(Structure):
         (' FLatestTx',s32),#
         (' FMaxDynamicPayloadLength',s32),#
         ]
-PLIBFlexRayControllerParameters = POINTER(TLIBFlexRayControllerParameters)
-
+PLIBFlexRayControllerParameters = POINTER(TLIBFlexRayControllerParameters)
 class TLIBEthernetMAX(Structure):
     _pack_ = 1
     _fields_ = [
         ('FHeader',TLIBEthernetHeader),#
         ('FBytes',u8 * 1612),#starting by destination MAC, source MAC, ethernet type, payload...
         ]
-PLIBEthernetMAX = POINTER(TLIBEthernetMAX)
-
+PLIBEthernetMAX = POINTER(TLIBEthernetMAX)
 class TLIBTrigger_def(Structure):
     _pack_ = 1
     _fields_ = [
@@ -657,8 +653,7 @@ class TLIBTrigger_def(Structure):
         ('cycle_code',u8),#BASE-CYCLE + CYCLE-REPETITION
         ('config_byte',u8),#//bit 0:是否使能通道A//bit 1:是否使能通道B//bit 2:是否网络管理报文//bit 3:传输模式，0表示连续传输，1表示单次触发//bit 4:是否为冷启动报文，只有缓冲区0可以置1//bit 5:是否为同步报文，只有缓冲区0/1可以置1//bit 6://bit 7:帧类型：0-静态，1-动态
         ]
-PLIBTrigger_def = POINTER(TLIBTrigger_def)
-
+PLIBTrigger_def = POINTER(TLIBTrigger_def)
 class TLIBGPSData(Structure):
     _pack_ = 1
     _fields_ = [
@@ -675,8 +670,7 @@ class TLIBGPSData(Structure):
         ('Satellite',u8),#
         ('FIdxChn',u8),#
         ]
-PLIBGPSData = POINTER(TLIBGPSData)
-
+PLIBGPSData = POINTER(TLIBGPSData)
 class TLIBEth_CMD_config(Structure):
     _pack_ = 1
     _fields_ = [
@@ -691,8 +685,7 @@ class TLIBEth_CMD_config(Structure):
         ('filter_perfect1',u64),#
         ('rev',u64 * 6),#48
         ]
-PLIBEth_CMD_config = POINTER(TLIBEth_CMD_config)
-
+PLIBEth_CMD_config = POINTER(TLIBEth_CMD_config)
 class Trealtime_comment_t(Structure):
     _pack_ = 1
     _fields_ = [
@@ -702,8 +695,7 @@ class Trealtime_comment_t(Structure):
         ('FComment',pchar),#
         ('FPadding',u32),#to be compatible with x64
         ]
-Prealtime_comment_t = POINTER(Trealtime_comment_t)
-
+Prealtime_comment_t = POINTER(Trealtime_comment_t)
 class TLIBSystemVar(Structure):
     _pack_ = 1
     _fields_ = [
@@ -715,8 +707,7 @@ class TLIBSystemVar(Structure):
         ('FData',pu8),#
         ('FPadding',s64),#to be compatible with x64
         ]
-PLIBSystemVar = POINTER(TLIBSystemVar)
-
+PLIBSystemVar = POINTER(TLIBSystemVar)
 class TMPCANSignal(Structure):
     _pack_ = 1
     _fields_ = [
@@ -727,8 +718,7 @@ class TMPCANSignal(Structure):
         ('FFactor',double),#
         ('FOffset',double),#
         ]
-PMPCANSignal = POINTER(TMPCANSignal)
-
+PMPCANSignal = POINTER(TMPCANSignal)
 class TMPLINSignal(Structure):
     _pack_ = 1
     _fields_ = [
@@ -739,8 +729,7 @@ class TMPLINSignal(Structure):
         ('FFactor',double),#
         ('FOffset',double),#
         ]
-PMPLINSignal = POINTER(TMPLINSignal)
-
+PMPLINSignal = POINTER(TMPLINSignal)
 class TMPFlexRaySignal(Structure):
     _pack_ = 1
     _fields_ = [
@@ -756,8 +745,7 @@ class TMPFlexRaySignal(Structure):
         ('FActualStartBit',s32),#added 2023-07-18
         ('FActualUpdateBit',s32),#added 2023-07-18
         ]
-PMPFlexRaySignal = POINTER(TMPFlexRaySignal)
-
+PMPFlexRaySignal = POINTER(TMPFlexRaySignal)
 class TMPDBProperties(Structure):
     _pack_ = 1
     _fields_ = [
@@ -770,8 +758,7 @@ class TMPDBProperties(Structure):
         ('FComment',char * 512),#
         ('FFlags',u64),#Bit 0: whether generate mp header
         ]
-PMPDBProperties = POINTER(TMPDBProperties)
-
+PMPDBProperties = POINTER(TMPDBProperties)
 class TMPDBECUProperties(Structure):
     _pack_ = 1
     _fields_ = [
@@ -782,8 +769,7 @@ class TMPDBECUProperties(Structure):
         ('FName',char * 512),#
         ('FComment',char * 512),#
         ]
-PMPDBECUProperties = POINTER(TMPDBECUProperties)
-
+PMPDBECUProperties = POINTER(TMPDBECUProperties)
 class TMPDBFrameProperties(Structure):
     _pack_ = 1
     _fields_ = [
@@ -814,8 +800,7 @@ class TMPDBFrameProperties(Structure):
         ('FName',char * 512),#
         ('FComment',char * 512),#
         ]
-PMPDBFrameProperties = POINTER(TMPDBFrameProperties)
-
+PMPDBFrameProperties = POINTER(TMPDBFrameProperties)
 class TMPDBSignalProperties(Structure):
     _pack_ = 1
     _fields_ = [
@@ -836,8 +821,7 @@ class TMPDBSignalProperties(Structure):
         ('FName',char * 512),#
         ('FComment',char * 512),#
         ]
-PMPDBSignalProperties = POINTER(TMPDBSignalProperties)
-
+PMPDBSignalProperties = POINTER(TMPDBSignalProperties)
 class TLIBHWInfo(Structure):
     _pack_ = 1
     _fields_ = [
@@ -847,8 +831,7 @@ class TLIBHWInfo(Structure):
         ('FDeviceName',char * 32),#
         ('FSerialString',char * 64),#
         ]
-PLIBHWInfo = POINTER(TLIBHWInfo)
-
+PLIBHWInfo = POINTER(TLIBHWInfo)
 class TLIBTSMapping(Structure):
     _pack_ = 1
     _fields_ = [
@@ -862,8 +845,7 @@ class TLIBTSMapping(Structure):
         ('FHWDeviceName',char * 32),#
         ('FMappingDisabled', c_bool),#
         ]
-PLIBTSMapping = POINTER(TLIBTSMapping)
-
+PLIBTSMapping = POINTER(TLIBTSMapping)
 class TLIBSystemVarDef(Structure):
     _pack_ = 1
     _fields_ = [
@@ -876,23 +858,20 @@ class TLIBSystemVarDef(Structure):
         ('FValueMax',double),#
         ('FUnit',char * 32),#
         ]
-PLIBSystemVarDef = POINTER(TLIBSystemVarDef)
-
+PLIBSystemVarDef = POINTER(TLIBSystemVarDef)
 class Tip4_addr_t(Structure):
     _pack_ = 1
     _fields_ = [
         ('addr',u32),#
         ]
-Pip4_addr_t = POINTER(Tip4_addr_t)
-
+Pip4_addr_t = POINTER(Tip4_addr_t)
 class Tip6_addr_t(Structure):
     _pack_ = 1
     _fields_ = [
         ('addr',u32 * 4),#
         ('zone',u8),#
         ]
-Pip6_addr_t = POINTER(Tip6_addr_t)
-
+Pip6_addr_t = POINTER(Tip6_addr_t)
 class Tts_sockaddr(Structure):
     _pack_ = 1
     _fields_ = [
@@ -900,16 +879,14 @@ class Tts_sockaddr(Structure):
         ('sa_family',u8),#
         ('sa_data',char * 14),#
         ]
-Pts_sockaddr = POINTER(Tts_sockaddr)
-
+Pts_sockaddr = POINTER(Tts_sockaddr)
 class Tts_iovec(Structure):
     _pack_ = 1
     _fields_ = [
         ('iov_base',TObject),#
         ('iov_len',size_t),#
         ]
-Pts_iovec = POINTER(Tts_iovec)
-
+Pts_iovec = POINTER(Tts_iovec)
 class Tts_msghdr(Structure):
     _pack_ = 1
     _fields_ = [
@@ -921,23 +898,20 @@ class Tts_msghdr(Structure):
         ('msg_controllen',u32),#
         ('msg_flags',s32),#
         ]
-Pts_msghdr = POINTER(Tts_msghdr)
-
+Pts_msghdr = POINTER(Tts_msghdr)
 class Tts_fd_set(Structure):
     _pack_ = 1
     _fields_ = [
         ('fd_bits',u8 * 2),#
         ]
-Pts_fd_set = POINTER(Tts_fd_set)
-
+Pts_fd_set = POINTER(Tts_fd_set)
 class Tts_timeval(Structure):
     _pack_ = 1
     _fields_ = [
         ('tv_sec',u32),#
         ('tv_usec',u32),#
         ]
-Pts_timeval = POINTER(Tts_timeval)
-
+Pts_timeval = POINTER(Tts_timeval)
 class Tts_pollfd(Structure):
     _pack_ = 1
     _fields_ = [
@@ -945,8 +919,7 @@ class Tts_pollfd(Structure):
         ('events',s16),#
         ('revents',s16),#
         ]
-Pts_pollfd = POINTER(Tts_pollfd)
-
+Pts_pollfd = POINTER(Tts_pollfd)
 class Tts_sockaddr_in(Structure):
     _pack_ = 1
     _fields_ = [
@@ -956,13 +929,11 @@ class Tts_sockaddr_in(Structure):
         ('sin_addr',Tip4_addr_t),#
         ('sin_zero',u8 * 8),#
         ]
-Pts_sockaddr_in = POINTER(Tts_sockaddr_in)
-
+Pts_sockaddr_in = POINTER(Tts_sockaddr_in)
 class Tip_addr_t(Structure):
     _pack_ = 1
     _fields_ = [
         ('ip4Or6',Tip6_addr_t),#
         ('FType',u32),#
         ]
-Pip_addr_t = POINTER(Tip_addr_t)
-
+Pip_addr_t = POINTER(Tip_addr_t)

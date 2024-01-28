@@ -1,6 +1,7 @@
 from .TSDirver import *
 from .TSStruct import * 
-from .TSCallback import *
+from .TSCallback import *
+from .TSEnum import *
 set_libtsmaster_location = dll.set_libtsmaster_location
 #arg[0] AFilePath : None
 set_libtsmaster_location.argtypes =[pchar]
@@ -3056,7 +3057,7 @@ tssocket_remove_device = dll.tssocket_remove_device
 #arg[0] ANetworkIndex : None
 #arg[1] macaddr : None
 #arg[2] ipaddr : None
-tssocket_remove_device.argtypes =[s32,pu8,Tip4_addr_t]
+tssocket_remove_device.argtypes =[s32,pu8,Pip4_addr_t]
 tssocket_remove_device.restype = s32
 tssocket_dhcp_start = dll.tssocket_dhcp_start
 #arg[0] ANetworkIndex : None
