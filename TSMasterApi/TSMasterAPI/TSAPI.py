@@ -144,13 +144,15 @@ tsapp_set_mapping.argtypes = [PLIBTSMapping]
 #arg[0] AAppName
 #arg[1] AAppChannelType
 #arg[2] AAppChannel
-#arg[3] AHardwareType
-#arg[4] AHardwareSubType
-#arg[5] AHardwareIndex
-#arg[6] AHardwareChannel
+#arg[3] AHardwareName
+#arg[4] AHardwareType
+#arg[5] AHardwareSubType
+#arg[6] AHardwareIndex
+#arg[7] AHardwareChannel
+#arg[8] AEnableMapping
 tsapp_set_mapping_verbose = dll.tsapp_set_mapping_verbose
 tsapp_set_mapping_verbose.restype = s32
-tsapp_set_mapping_verbose.argtypes = [pchar,TLIBApplicationChannelType,s32,TLIBBusToolDeviceType,s32,s32,s32]
+tsapp_set_mapping_verbose.argtypes = [pchar,TLIBApplicationChannelType,s32,pchar,TLIBBusToolDeviceType,s32,s32,s32,cbool]
 
 #arg[0] AMapping
 tsapp_get_mapping = dll.tsapp_get_mapping
@@ -271,9 +273,10 @@ tsapp_get_hw_info_by_index.argtypes = [s32,PLIBHWInfo]
 #arg[4] ADeviceNameBuffer
 #arg[5] ADeviceNameBufferSize
 #arg[6] ASerialStringBuffer
+#arg[7] ASerialStringBufferSize
 tsapp_get_hw_info_by_index_verbose = dll.tsapp_get_hw_info_by_index_verbose
 tsapp_get_hw_info_by_index_verbose.restype = s32
-tsapp_get_hw_info_by_index_verbose.argtypes = [s32,PLIBBusToolDeviceType,pchar,s32,pchar,s32,pchar]
+tsapp_get_hw_info_by_index_verbose.argtypes = [s32,PLIBBusToolDeviceType,pchar,s32,pchar,s32,pchar,s32]
 
 #arg[0] AScanTOSUN
 #arg[1] AScanVector
@@ -2744,6 +2747,28 @@ tssocket_remove_device.restype = s32
 tssocket_remove_device.argtypes = [s32,pu8,Pip4_addr_t]
 
 #arg[0] ANetworkIndex
+#arg[1] macaddr
+#arg[2] ipaddr
+#arg[3] netmask
+#arg[4] gateway
+#arg[5] mtu
+tssocket_add_device_ex = dll.tssocket_add_device_ex
+tssocket_add_device_ex.restype = s32
+tssocket_add_device_ex.argtypes = [s32,pchar,pchar,pchar,pchar,u16]
+
+#arg[0] ANetworkIndex
+#arg[1] mac
+#arg[2] ipaddr
+tssocket_remove_device_ex = dll.tssocket_remove_device_ex
+tssocket_remove_device_ex.restype = s32
+tssocket_remove_device_ex.argtypes = [s32,pchar,pchar]
+
+#arg[0] ANetworkIndex
+tssocket_get_errno = dll.tssocket_get_errno
+tssocket_get_errno.restype = s32
+tssocket_get_errno.argtypes = [s32]
+
+#arg[0] ANetworkIndex
 tssocket_dhcp_start = dll.tssocket_dhcp_start
 tssocket_dhcp_start.restype = s32
 tssocket_dhcp_start.argtypes = [s32]
@@ -2833,6 +2858,12 @@ tssocket_setsockopt.argtypes = [s32,s32,s32,ps32,u32]
 tssocket_close = dll.tssocket_close
 tssocket_close.restype = s32
 tssocket_close.argtypes = [s32]
+
+#arg[0] s
+#arg[1] AForceExitTimeWait
+tssocket_close_v2 = dll.tssocket_close_v2
+tssocket_close_v2.restype = s32
+tssocket_close_v2.argtypes = [s32,s32]
 
 #arg[0] s
 #arg[1] name
@@ -2968,6 +2999,12 @@ tssocket_tcp_close.restype = s32
 tssocket_tcp_close.argtypes = [s32]
 
 #arg[0] s
+#arg[1] AForceExitTimeWait
+tssocket_tcp_close_v2 = dll.tssocket_tcp_close_v2
+tssocket_tcp_close_v2.restype = s32
+tssocket_tcp_close_v2.argtypes = [s32,s32]
+
+#arg[0] s
 #arg[1] AData
 #arg[2] ASize
 tssocket_tcp_send = dll.tssocket_tcp_send
@@ -3020,13 +3057,13 @@ tssocket_udp_sendto_v2.argtypes = [s32,u32,u16,pu8,s32]
 #arg[1] AEvent
 tssocket_register_tcp_listen_event = dll.tssocket_register_tcp_listen_event
 tssocket_register_tcp_listen_event.restype = s32
-tssocket_register_tcp_listen_event.argtypes = [s32,TSSocketNotifyEvent_Win32]
+tssocket_register_tcp_listen_event.argtypes = [s32,TSSocketListenEvent_Win32]
 
 #arg[0] s
 #arg[1] AEvent
 tssocket_unregister_tcp_listen_event = dll.tssocket_unregister_tcp_listen_event
 tssocket_unregister_tcp_listen_event.restype = s32
-tssocket_unregister_tcp_listen_event.argtypes = [s32,TSSocketNotifyEvent_Win32]
+tssocket_unregister_tcp_listen_event.argtypes = [s32,TSSocketListenEvent_Win32]
 
 #arg[0] s
 tssocket_unregister_tcp_listen_events = dll.tssocket_unregister_tcp_listen_events
@@ -3151,6 +3188,23 @@ tssocket_unregister_udp_receivefrom_eventv2.argtypes = [s32,TSSocketReceiveEvent
 tssocket_unregister_udp_receivefrom_eventsv2 = dll.tssocket_unregister_udp_receivefrom_eventsv2
 tssocket_unregister_udp_receivefrom_eventsv2.restype = s32
 tssocket_unregister_udp_receivefrom_eventsv2.argtypes = [s32]
+
+#arg[0] s
+#arg[1] AEvent
+tssocket_register_udp_receivefrom_eventv3 = dll.tssocket_register_udp_receivefrom_eventv3
+tssocket_register_udp_receivefrom_eventv3.restype = s32
+tssocket_register_udp_receivefrom_eventv3.argtypes = [s32,TSSocketReceiveEventV3_Win32]
+
+#arg[0] s
+#arg[1] AEvent
+tssocket_unregister_udp_receivefrom_eventv3 = dll.tssocket_unregister_udp_receivefrom_eventv3
+tssocket_unregister_udp_receivefrom_eventv3.restype = s32
+tssocket_unregister_udp_receivefrom_eventv3.argtypes = [s32,TSSocketReceiveEventV3_Win32]
+
+#arg[0] s
+tssocket_unregister_udp_receivefrom_eventsv3 = dll.tssocket_unregister_udp_receivefrom_eventsv3
+tssocket_unregister_udp_receivefrom_eventsv3.restype = s32
+tssocket_unregister_udp_receivefrom_eventsv3.argtypes = [s32]
 
 #arg[0] s
 #arg[1] AEvent
@@ -4598,4 +4652,115 @@ start_system_message_log.argtypes = [pchar]
 end_system_message_log = dll.end_system_message_log
 end_system_message_log.restype = s32
 end_system_message_log.argtypes = [ppchar]
+
+#arg[0] ARpcName
+#arg[1] ABufferSizeBytes
+#arg[2] ARxEvent
+#arg[3] AHandle
+rpc_create_server = dll.rpc_create_server
+rpc_create_server.restype = s32
+rpc_create_server.argtypes = [pchar,size_t,TOnRpcData,psize_t]
+
+#arg[0] AHandle
+#arg[1] AActivate
+rpc_activate_server = dll.rpc_activate_server
+rpc_activate_server.restype = s32
+rpc_activate_server.argtypes = [size_t,cbool]
+
+#arg[0] AHandle
+rpc_delete_server = dll.rpc_delete_server
+rpc_delete_server.restype = s32
+rpc_delete_server.argtypes = [size_t]
+
+#arg[0] AHandle
+#arg[1] AAddr
+#arg[2] ASizeBytes
+rpc_server_write_sync = dll.rpc_server_write_sync
+rpc_server_write_sync.restype = s32
+rpc_server_write_sync.argtypes = [size_t,pu8,size_t]
+
+#arg[0] ARpcName
+#arg[1] ABufferSizeBytes
+#arg[2] AHandle
+rpc_create_client = dll.rpc_create_client
+rpc_create_client.restype = s32
+rpc_create_client.argtypes = [pchar,size_t,psize_t]
+
+#arg[0] AHandle
+#arg[1] AActivate
+rpc_activate_client = dll.rpc_activate_client
+rpc_activate_client.restype = s32
+rpc_activate_client.argtypes = [size_t,cbool]
+
+#arg[0] AHandle
+rpc_delete_client = dll.rpc_delete_client
+rpc_delete_client.restype = s32
+rpc_delete_client.argtypes = [size_t]
+
+#arg[0] AHandle
+#arg[1] AAddr
+#arg[2] ASizeBytes
+#arg[3] ATimeOutMs
+rpc_client_transmit_sync = dll.rpc_client_transmit_sync
+rpc_client_transmit_sync.restype = s32
+rpc_client_transmit_sync.argtypes = [size_t,pu8,size_t,s32]
+
+#arg[0] AHandle
+#arg[1] ASizeBytes
+#arg[2] AAddr
+#arg[3] ATimeOutMs
+rpc_client_receive_sync = dll.rpc_client_receive_sync
+rpc_client_receive_sync.restype = s32
+rpc_client_receive_sync.argtypes = [size_t,psize_t,pu8,s32]
+
+#arg[0] AMasked
+mask_fpu_exceptions = dll.mask_fpu_exceptions
+mask_fpu_exceptions.restype = s32
+mask_fpu_exceptions.argtypes = [cbool]
+
+#arg[0] AActivate
+rpc_tsmaster_activate_server = dll.rpc_tsmaster_activate_server
+rpc_tsmaster_activate_server.restype = s32
+rpc_tsmaster_activate_server.argtypes = [cbool]
+
+#arg[0] ATSMasterAppName
+#arg[1] AHandle
+rpc_tsmaster_create_client = dll.rpc_tsmaster_create_client
+rpc_tsmaster_create_client.restype = s32
+rpc_tsmaster_create_client.argtypes = [pchar,psize_t]
+
+#arg[0] AHandle
+#arg[1] AActivate
+rpc_tsmaster_activate_client = dll.rpc_tsmaster_activate_client
+rpc_tsmaster_activate_client.restype = s32
+rpc_tsmaster_activate_client.argtypes = [size_t,cbool]
+
+#arg[0] AHandle
+rpc_tsmaster_delete_client = dll.rpc_tsmaster_delete_client
+rpc_tsmaster_delete_client.restype = s32
+rpc_tsmaster_delete_client.argtypes = [size_t]
+
+#arg[0] AHandle
+rpc_tsmaster_cmd_start_simulation = dll.rpc_tsmaster_cmd_start_simulation
+rpc_tsmaster_cmd_start_simulation.restype = s32
+rpc_tsmaster_cmd_start_simulation.argtypes = [size_t]
+
+#arg[0] AHandle
+rpc_tsmaster_cmd_stop_simulation = dll.rpc_tsmaster_cmd_stop_simulation
+rpc_tsmaster_cmd_stop_simulation.restype = s32
+rpc_tsmaster_cmd_stop_simulation.argtypes = [size_t]
+
+#arg[0] AHandle
+#arg[1] ACompleteName
+#arg[2] AValue
+rpc_tsmaster_cmd_write_system_var = dll.rpc_tsmaster_cmd_write_system_var
+rpc_tsmaster_cmd_write_system_var.restype = s32
+rpc_tsmaster_cmd_write_system_var.argtypes = [size_t,pchar,pchar]
+
+#arg[0] AHandle
+#arg[1] AAddr
+#arg[2] ASizeBytes
+rpc_tsmaster_cmd_transfer_memory = dll.rpc_tsmaster_cmd_transfer_memory
+rpc_tsmaster_cmd_transfer_memory.restype = s32
+rpc_tsmaster_cmd_transfer_memory.argtypes = [size_t,pu8,size_t]
 

@@ -38,6 +38,7 @@ TObject = c_void_p
 cbool = c_bool
 pbool = POINTER(c_bool)
 pvoid = c_void_p
+ppvoid = POINTER(c_void_p)
 size_t = c_size_t
 psize_t = POINTER(size_t)
 ppsize_t = POINTER(psize_t)
@@ -884,6 +885,21 @@ class Tts_msghdr(Structure):
 ('msg_flags',s32),
 ]
 Pts_msghdr = POINTER(Tts_msghdr)
+
+class Tts_cmsghdr(Structure):
+    _pack_ = 1
+    _fields_ =[('cmsg_len',u32),
+('cmsg_level',s32),
+('cmsg_type',s32),
+]
+Pts_cmsghdr = POINTER(Tts_cmsghdr)
+
+class Tts_in_pktinfo(Structure):
+    _pack_ = 1
+    _fields_ =[('ipi_ifindex',u32),
+('ipi_addr',Ts_in_addr),
+]
+Pts_in_pktinfo = POINTER(Tts_in_pktinfo)
 
 class Tts_pollfd(Structure):
     _pack_ = 1
