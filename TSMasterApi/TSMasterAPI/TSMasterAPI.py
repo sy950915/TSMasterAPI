@@ -1621,9 +1621,9 @@ def tsdiag_can_delete(pDiagModuleIndex: c_int8):
     fctIsStd = False
     tsdiag_can_create(udsHandle,ChnIndex,ASupportFD,AMaxdlc,reqID,resIsStd,resID,resIsStd,AFctID,fctIsStd)
 
-    tsdiag_can_delete(udsHandle)
+    dll.tsdiag_can_delete(udsHandle)
     """
-    r = tsdiag_can_delete(pDiagModuleIndex)
+    r = dll.tsdiag_can_delete(pDiagModuleIndex)
     return r
 
 
